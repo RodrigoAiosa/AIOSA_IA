@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import os
 import base64
+import re
 
 # ---------------------------------------------------
 # CONFIGURAÇÃO DA PÁGINA
@@ -20,7 +21,6 @@ MAX_HISTORICO = 20
 # FUNÇÕES UTILITÁRIAS
 # ---------------------------------------------------
 def get_base64_img(img_path: str) -> str:
-    # Sem cache para garantir leitura correta no Streamlit Cloud
     try:
         with open(img_path, "rb") as f:
             return base64.b64encode(f.read()).decode()
@@ -28,6 +28,23 @@ def get_base64_img(img_path: str) -> str:
         return ""
     except Exception:
         return ""
+
+
+def markdown_para_html(texto: str) -> str:
+    """Converte Markdown básico para HTML para renderizar nas bolhas."""
+    # Links: [texto](url) → <a href="url">texto</a>
+    texto = re.sub(
+        r'\[([^\]]+)\]\((https?://[^\)]+)\)',
+        r'<a href="\2" target="_blank" style="color:#075E54;font-weight:bold;">\1</a>',
+        texto
+    )
+    # Negrito: **texto** → <strong>texto</strong>
+    texto = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', texto)
+    # Itálico: *texto* → <em>texto</em>
+    texto = re.sub(r'\*(.+?)\*', r'<em>\1</em>', texto)
+    # Quebras de linha
+    texto = texto.replace("\n", "<br>")
+    return texto
 
 
 @st.cache_data
@@ -42,9 +59,13 @@ def carregar_contexto() -> str:
         "\n\n### REGRAS IMPORTANTES:\n"
         "1. LINK DE CURSOS: Sempre que o usuário mencionar cursos online, "
         "inclua este link no texto: https://rodrigoaiosa.streamlit.app/cursos_online\n"
-        "2. Seja direto, objetivo e técnico.\n"
-        "3. Responda sempre em português do Brasil.\n"
-        "4. Se não souber algo, diga claramente em vez de inventar.\n"
+        "2. LINK DO WHATSAPP: Sempre que o usuário demonstrar interesse em contratar, "
+        "treinar equipe, falar com o Rodrigo ou pedir contato, exiba o link abaixo "
+        "como hiperlink clicável em Markdown:\n"
+        "[📲 Falar com o Rodrigo no WhatsApp](https://wa.me/5511977019335)\n"
+        "3. Seja direto, objetivo e técnico.\n"
+        "4. Responda sempre em português do Brasil.\n"
+        "5. Se não souber algo, diga claramente em vez de inventar.\n"
     )
     return base + reforco
 
@@ -194,6 +215,11 @@ st.markdown(f"""
         border-radius: 0px 8px 8px 8px;
         box-shadow: 0 1px 1px rgba(0,0,0,0.1);
     }}
+    .bubble a {{
+        color: #075E54 !important;
+        font-weight: bold;
+        text-decoration: underline;
+    }}
     [data-testid="stChatInput"] textarea {{
         color: #000000 !important;
         background-color: #ffffff !important;
@@ -239,7 +265,7 @@ chat_container = st.container()
 with chat_container:
     for msg in st.session_state.messages:
         tipo = "user" if msg["role"] == "user" else "bot"
-        conteudo = msg["content"].replace("\n", "<br>")
+        conteudo = markdown_para_html(msg["content"])
         st.markdown(f'<div class="bubble {tipo}">{conteudo}</div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------
@@ -250,15 +276,15 @@ if prompt := st.chat_input("Como posso ajudar em seu projeto de dados?"):
     # 1. Adiciona e exibe mensagem do usuário imediatamente
     st.session_state.messages.append({"role": "user", "content": prompt})
     with chat_container:
-        conteudo_user = prompt.replace("\n", "<br>")
+        conteudo_user = markdown_para_html(prompt)
         st.markdown(f'<div class="bubble user">{conteudo_user}</div>', unsafe_allow_html=True)
 
     # 2. Chama a IA
     with st.spinner("Alosa analisando..."):
         resposta = perguntar_ia(st.session_state.messages, st.session_state.system_prompt)
 
-    # 3. Exibe resposta
+    # 3. Exibe resposta com Markdown convertido para HTML
     st.session_state.messages.append({"role": "assistant", "content": resposta})
     with chat_container:
-        conteudo_bot = resposta.replace("\n", "<br>")
+        conteudo_bot = markdown_para_html(resposta)
         st.markdown(f'<div class="bubble bot">{conteudo_bot}</div>', unsafe_allow_html=True)
