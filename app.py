@@ -51,26 +51,20 @@ def carregar_contexto() -> str:
 
 
 def limitar_historico(messages: list) -> list:
-    """Remove mensagens antigas mantendo apenas as MAX_HISTORICO mais recentes."""
     if len(messages) > MAX_HISTORICO:
         return messages[-MAX_HISTORICO:]
     return messages
 
 
 def converter_para_gemini(messages: list) -> list:
-    """Converte o formato de mensagens para o formato da API Gemini."""
     gemini_messages = []
     for msg in messages:
         role = msg["role"]
         content = msg["content"]
-
-        # Gemini usa "user" e "model" (não "assistant")
         if role == "assistant":
             role = "model"
         elif role == "system":
-            # System messages viram a primeira mensagem do usuário no Gemini
             continue
-
         gemini_messages.append({
             "role": role,
             "parts": [{"text": content}]
@@ -91,6 +85,9 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
     historico = limitar_historico(messages)
     gemini_messages = converter_para_gemini(historico)
 
+    if not gemini_messages:
+        return "⚠️ Nenhuma mensagem para enviar."
+
     payload = {
         "system_instruction": {
             "parts": [{"text": system_prompt}]
@@ -104,27 +101,33 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
 
     try:
         r = requests.post(url, headers=headers, json=payload, timeout=30)
-        r.raise_for_status()
+
+        if not r.ok:
+            status = r.status_code
+            try:
+                erro_detalhe = r.json()
+                msg_erro = erro_detalhe.get("error", {}).get("message", str(erro_detalhe))
+            except Exception:
+                msg_erro = r.text[:300]
+
+            if status in (401, 403):
+                return "🔑 Chave de API inválida ou sem permissão. Verifique o GEMINI_API_KEY nos secrets."
+            elif status == 429:
+                return "🚦 Limite de requisições atingido. Aguarde alguns segundos e tente novamente."
+            else:
+                return f"❌ Erro HTTP {status}: {msg_erro}"
+
         data = r.json()
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
     except requests.exceptions.Timeout:
         return "⏱️ A requisição demorou demais. Tente novamente em instantes."
-    except requests.exceptions.ConnectionError:
-        return "🔌 Sem conexão com a API. Verifique sua internet ou tente mais tarde."
-    except requests.exceptions.HTTPError as e:
-        status = e.response.status_code if e.response else "?"
-        if status == 400:
-            return "❌ Requisição inválida. Verifique o formato das mensagens."
-        elif status == 401 or status == 403:
-            return "🔑 Chave de API inválida ou sem permissão. Verifique o GEMINI_API_KEY."
-        elif status == 429:
-            return "🚦 Limite de requisições atingido. Aguarde alguns segundos e tente novamente."
-        return f"❌ Erro HTTP {status} da API. Tente novamente."
-    except (KeyError, IndexError):
-        return "⚠️ Resposta inesperada da API. Tente novamente."
+    except requests.exceptions.ConnectionError as e:
+        return f"🔌 Erro de conexão: {str(e)[:300]}"
+    except (KeyError, IndexError) as e:
+        return f"⚠️ Resposta inesperada da API. Detalhe: {str(e)}"
     except Exception as e:
-        return f"❌ Erro inesperado: {str(e)}"
+        return f"❌ Erro inesperado: {type(e).__name__}: {str(e)[:300]}"
 
 
 # ---------------------------------------------------
