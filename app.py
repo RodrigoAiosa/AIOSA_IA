@@ -11,7 +11,7 @@ st.set_page_config(page_title="Alosa IA", page_icon="💬", layout="wide")
 # ---------------------------------------------------
 # CONSTANTES
 # ---------------------------------------------------
-MODEL = "gemini-1.5-flash"
+MODEL = "gemini-2.5-flash"          # ✅ modelo gratuito atual (1.5 foi aposentado)
 INSTRUCOES_PATH = "instrucoes.txt"
 FOTO_PATH = "eu_ia_foto.jpg"
 MAX_HISTORICO = 20
@@ -58,8 +58,8 @@ def limitar_historico(messages: list) -> list:
 
 def converter_para_gemini(messages: list, system_prompt: str) -> list:
     """
-    Gemini v1beta não aceita 'system_instruction' via REST simples.
-    Solução: injeta o system prompt como par user/model no início do histórico.
+    Injeta o system prompt como par user/model no início do histórico,
+    pois a API REST v1beta não suporta system_instruction diretamente.
     """
     gemini_messages = [
         {"role": "user",  "parts": [{"text": system_prompt}]},
@@ -87,7 +87,6 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
     if not api_key:
         return "⚠️ Chave de API não configurada. Adicione GEMINI_API_KEY nos secrets do Streamlit."
 
-    # v1beta aceita o formato completo com histórico
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={api_key}"
 
     headers = {"Content-Type": "application/json"}
