@@ -197,8 +197,18 @@ st.markdown(f"""
     [data-testid="stChatInput"] textarea {{
         color: #000000 !important;
         background-color: #ffffff !important;
+        caret-color: #000000 !important;
     }}
 </style>
+
+<script>
+function focusChatInput() {{
+    const el = document.querySelector('[data-testid="stChatInput"] textarea');
+    if (el) {{ el.focus(); }}
+    else {{ setTimeout(focusChatInput, 300); }}
+}}
+window.addEventListener('load', focusChatInput);
+</script>
 
 <div class="wa-header">
     <div class="profile-pic">
