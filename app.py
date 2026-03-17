@@ -19,15 +19,14 @@ MAX_HISTORICO = 20
 # ---------------------------------------------------
 # FUNÇÕES UTILITÁRIAS
 # ---------------------------------------------------
-@st.cache_data
 def get_base64_img(img_path: str) -> str:
+    # Sem cache para garantir leitura correta no Streamlit Cloud
     try:
         with open(img_path, "rb") as f:
             return base64.b64encode(f.read()).decode()
     except FileNotFoundError:
         return ""
-    except Exception as e:
-        st.warning(f"Erro ao carregar imagem: {e}")
+    except Exception:
         return ""
 
 
@@ -105,7 +104,6 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
                 msg_erro = erro_detalhe.get("error", {}).get("message", str(erro_detalhe))
             except Exception:
                 msg_erro = r.text[:300]
-
             if status in (401, 403):
                 return "🔑 Chave de API inválida ou sem permissão. Verifique o GEMINI_API_KEY nos secrets."
             elif status == 429:
@@ -127,25 +125,20 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
 
 
 # ---------------------------------------------------
-# ESTILO CSS
+# CARREGA FOTO E MONTA HEADER
 # ---------------------------------------------------
 img_base64 = get_base64_img(FOTO_PATH)
 
-# Monta o HTML da foto: imagem real ou inicial com letra
 if img_base64:
-    foto_html = f"""
-        <img src='data:image/jpeg;base64,{img_base64}'
-             style='width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;'>
-    """
+    foto_html = f"<img src='data:image/jpeg;base64,{img_base64}' style='width:42px;height:42px;object-fit:cover;border-radius:50%;display:block;'>"
 else:
-    foto_html = "<span style='font-size:20px;'>👤</span>"
+    foto_html = "<span style='font-size:22px;color:#fff;'>👤</span>"
 
 st.markdown(f"""
 <style>
     header, footer, #MainMenu {{visibility: hidden;}}
     .stApp {{ background-color: #ECE5DD; }}
 
-    /* ---- HEADER ESTILO WHATSAPP ---- */
     .wa-header {{
         background-color: #075E54;
         padding: 8px 16px;
@@ -164,20 +157,16 @@ st.markdown(f"""
         overflow: hidden;
         margin-right: 12px;
         flex-shrink: 0;
-        background-color: #ccc;
+        background-color: #aaa;
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid rgba(255,255,255,0.3);
     }}
     .contact-info {{ color: white; font-family: sans-serif; line-height: 1.3; }}
     .contact-name {{ font-weight: bold; font-size: 15px; margin: 0; }}
     .contact-status {{ font-size: 12px; margin: 0; opacity: 0.85; color: #a8d5a2; }}
-
-    /* ---- ESPAÇO ABAIXO DO HEADER ---- */
     .chat-space {{ margin-top: 70px; padding-bottom: 20px; }}
 
-    /* ---- BOLHAS ---- */
     html, body, [class*="st-"], p, div, span {{ color: #000000; }}
     .bubble {{
         padding: 8px 12px;
@@ -188,7 +177,6 @@ st.markdown(f"""
         font-size: 14px;
         line-height: 1.5;
         word-wrap: break-word;
-        position: relative;
     }}
     .user {{
         background-color: #DCF8C6;
@@ -206,8 +194,6 @@ st.markdown(f"""
         border-radius: 0px 8px 8px 8px;
         box-shadow: 0 1px 1px rgba(0,0,0,0.1);
     }}
-
-    /* ---- INPUT ---- */
     [data-testid="stChatInput"] textarea {{
         color: #000000 !important;
         background-color: #ffffff !important;
@@ -251,20 +237,18 @@ with chat_container:
 # ---------------------------------------------------
 if prompt := st.chat_input("Como posso ajudar em seu projeto de dados?"):
 
-    # ✅ 1. Adiciona a mensagem do usuário ao histórico
+    # 1. Adiciona e exibe mensagem do usuário imediatamente
     st.session_state.messages.append({"role": "user", "content": prompt})
-
-    # ✅ 2. Exibe imediatamente a mensagem do usuário
     with chat_container:
         conteudo_user = prompt.replace("\n", "<br>")
         st.markdown(f'<div class="bubble user">{conteudo_user}</div>', unsafe_allow_html=True)
 
-    # ✅ 3. Chama a IA e exibe a resposta
+    # 2. Chama a IA
     with st.spinner("Alosa analisando..."):
         resposta = perguntar_ia(st.session_state.messages, st.session_state.system_prompt)
 
+    # 3. Exibe resposta
     st.session_state.messages.append({"role": "assistant", "content": resposta})
-
     with chat_container:
         conteudo_bot = resposta.replace("\n", "<br>")
         st.markdown(f'<div class="bubble bot">{conteudo_bot}</div>', unsafe_allow_html=True)
