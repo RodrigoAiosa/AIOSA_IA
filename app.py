@@ -11,8 +11,7 @@ st.set_page_config(page_title="Alosa IA", page_icon="💬", layout="wide")
 # ---------------------------------------------------
 # CONSTANTES
 # ---------------------------------------------------
-API_URL = "https://router.huggingface.co/v1/chat/completions"
-MODEL = "meta-llama/Llama-3.2-3B-Instruct"
+MODEL = "gemini-1.5-flash"
 INSTRUCOES_PATH = "instrucoes.txt"
 FOTO_PATH = "eu_ia_foto.jpg"
 MAX_HISTORICO = 20
@@ -52,35 +51,62 @@ def carregar_contexto() -> str:
 
 
 def limitar_historico(messages: list) -> list:
-    system_msgs = [m for m in messages if m["role"] == "system"]
-    other_msgs = [m for m in messages if m["role"] != "system"]
-    if len(other_msgs) > MAX_HISTORICO:
-        other_msgs = other_msgs[-MAX_HISTORICO:]
-    return system_msgs + other_msgs
+    """Remove mensagens antigas mantendo apenas as MAX_HISTORICO mais recentes."""
+    if len(messages) > MAX_HISTORICO:
+        return messages[-MAX_HISTORICO:]
+    return messages
 
 
-def perguntar_ia(messages: list) -> str:
-    token = st.secrets.get("HF_TOKEN")
+def converter_para_gemini(messages: list) -> list:
+    """Converte o formato de mensagens para o formato da API Gemini."""
+    gemini_messages = []
+    for msg in messages:
+        role = msg["role"]
+        content = msg["content"]
 
-    if not token:
-        return "⚠️ Token de API não configurado. Verifique os secrets do Streamlit."
+        # Gemini usa "user" e "model" (não "assistant")
+        if role == "assistant":
+            role = "model"
+        elif role == "system":
+            # System messages viram a primeira mensagem do usuário no Gemini
+            continue
 
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+        gemini_messages.append({
+            "role": role,
+            "parts": [{"text": content}]
+        })
+    return gemini_messages
+
+
+def perguntar_ia(messages: list, system_prompt: str) -> str:
+    api_key = st.secrets.get("GEMINI_API_KEY")
+
+    if not api_key:
+        return "⚠️ Chave de API não configurada. Adicione GEMINI_API_KEY nos secrets do Streamlit."
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={api_key}"
+
+    headers = {"Content-Type": "application/json"}
+
+    historico = limitar_historico(messages)
+    gemini_messages = converter_para_gemini(historico)
+
     payload = {
-        "model": MODEL,
-        "messages": limitar_historico(messages),
-        "temperature": 0.2,
-        "max_tokens": 1024,
+        "system_instruction": {
+            "parts": [{"text": system_prompt}]
+        },
+        "contents": gemini_messages,
+        "generationConfig": {
+            "temperature": 0.2,
+            "maxOutputTokens": 1024,
+        }
     }
 
     try:
-        r = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+        r = requests.post(url, headers=headers, json=payload, timeout=30)
         r.raise_for_status()
         data = r.json()
-        return data["choices"][0]["message"]["content"]
+        return data["candidates"][0]["content"]["parts"][0]["text"]
 
     except requests.exceptions.Timeout:
         return "⏱️ A requisição demorou demais. Tente novamente em instantes."
@@ -88,8 +114,10 @@ def perguntar_ia(messages: list) -> str:
         return "🔌 Sem conexão com a API. Verifique sua internet ou tente mais tarde."
     except requests.exceptions.HTTPError as e:
         status = e.response.status_code if e.response else "?"
-        if status == 401:
-            return "🔑 Token inválido ou expirado. Verifique o HF_TOKEN nos secrets."
+        if status == 400:
+            return "❌ Requisição inválida. Verifique o formato das mensagens."
+        elif status == 401 or status == 403:
+            return "🔑 Chave de API inválida ou sem permissão. Verifique o GEMINI_API_KEY."
         elif status == 429:
             return "🚦 Limite de requisições atingido. Aguarde alguns segundos e tente novamente."
         return f"❌ Erro HTTP {status} da API. Tente novamente."
@@ -184,9 +212,10 @@ st.markdown(f"""
 # INICIALIZAÇÃO DO ESTADO
 # ---------------------------------------------------
 if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "system", "content": carregar_contexto()}
-    ]
+    st.session_state.messages = []
+
+if "system_prompt" not in st.session_state:
+    st.session_state.system_prompt = carregar_contexto()
 
 # ---------------------------------------------------
 # EXIBIÇÃO DO HISTÓRICO DE MENSAGENS
@@ -195,8 +224,6 @@ chat_container = st.container()
 
 with chat_container:
     for msg in st.session_state.messages:
-        if msg["role"] == "system":
-            continue
         tipo = "user" if msg["role"] == "user" else "bot"
         conteudo = msg["content"].replace("\n", "<br>")
         st.markdown(f'<div class="bubble {tipo}">{conteudo}</div>', unsafe_allow_html=True)
@@ -208,7 +235,7 @@ if prompt := st.chat_input("Como posso ajudar em seu projeto de dados?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     with st.spinner("Alosa analisando..."):
-        resposta = perguntar_ia(st.session_state.messages)
+        resposta = perguntar_ia(st.session_state.messages, st.session_state.system_prompt)
 
     st.session_state.messages.append({"role": "assistant", "content": resposta})
 
