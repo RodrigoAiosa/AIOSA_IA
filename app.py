@@ -4,14 +4,14 @@ import os
 import base64
 
 # ---------------------------------------------------
-# CONFIGURAÇÃO DA PÁGINA (deve ser a primeira chamada st.)
+# CONFIGURAÇÃO DA PÁGINA
 # ---------------------------------------------------
 st.set_page_config(page_title="Alosa IA", page_icon="💬", layout="wide")
 
 # ---------------------------------------------------
 # CONSTANTES
 # ---------------------------------------------------
-MODEL = "gemini-2.5-flash"          # ✅ modelo gratuito atual (1.5 foi aposentado)
+MODEL = "gemini-2.5-flash"
 INSTRUCOES_PATH = "instrucoes.txt"
 FOTO_PATH = "eu_ia_foto.jpg"
 MAX_HISTORICO = 20
@@ -57,15 +57,10 @@ def limitar_historico(messages: list) -> list:
 
 
 def converter_para_gemini(messages: list, system_prompt: str) -> list:
-    """
-    Injeta o system prompt como par user/model no início do histórico,
-    pois a API REST v1beta não suporta system_instruction diretamente.
-    """
     gemini_messages = [
         {"role": "user",  "parts": [{"text": system_prompt}]},
         {"role": "model", "parts": [{"text": "Entendido! Vou seguir todas as instruções fornecidas."}]},
     ]
-
     for msg in messages:
         role = msg["role"]
         content = msg["content"]
@@ -77,7 +72,6 @@ def converter_para_gemini(messages: list, system_prompt: str) -> list:
             "role": role,
             "parts": [{"text": content}]
         })
-
     return gemini_messages
 
 
@@ -88,7 +82,6 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
         return "⚠️ Chave de API não configurada. Adicione GEMINI_API_KEY nos secrets do Streamlit."
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={api_key}"
-
     headers = {"Content-Type": "application/json"}
 
     historico = limitar_historico(messages)
@@ -137,6 +130,7 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
 # ESTILO CSS
 # ---------------------------------------------------
 img_base64 = get_base64_img(FOTO_PATH)
+foto_html = f"<img src='data:image/jpeg;base64,{img_base64}' style='width:100%;height:100%;object-fit:cover;border-radius:50%;'>" if img_base64 else "👤"
 
 st.markdown(f"""
 <style>
@@ -154,17 +148,13 @@ st.markdown(f"""
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }}
     .profile-pic {{
-        width: 40px; height: 40px;
+        width: 42px; height: 42px;
         background-color: #f0f0f0;
         border-radius: 50%;
         margin-right: 15px;
         display: flex; justify-content: center; align-items: center;
         overflow: hidden;
         flex-shrink: 0;
-    }}
-    .profile-pic img {{
-        width: 100%; height: 100%;
-        object-fit: cover;
     }}
     .contact-info {{ color: white; font-family: sans-serif; }}
     .contact-name {{ font-weight: bold; font-size: 14px; margin: 0; }}
@@ -204,7 +194,7 @@ st.markdown(f"""
 
 <div class="wa-header">
     <div class="profile-pic">
-        {"<img src='data:image/jpeg;base64," + img_base64 + "'>" if img_base64 else "👤"}
+        {foto_html}
     </div>
     <div class="contact-info">
         <p class="contact-name">Alosa — Assistente do Rodrigo Aiosa</p>
