@@ -130,62 +130,84 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
 # ESTILO CSS
 # ---------------------------------------------------
 img_base64 = get_base64_img(FOTO_PATH)
-foto_html = f"<img src='data:image/jpeg;base64,{img_base64}' style='width:100%;height:100%;object-fit:cover;border-radius:50%;'>" if img_base64 else "👤"
+
+# Monta o HTML da foto: imagem real ou inicial com letra
+if img_base64:
+    foto_html = f"""
+        <img src='data:image/jpeg;base64,{img_base64}'
+             style='width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;'>
+    """
+else:
+    foto_html = "<span style='font-size:20px;'>👤</span>"
 
 st.markdown(f"""
 <style>
     header, footer, #MainMenu {{visibility: hidden;}}
     .stApp {{ background-color: #ECE5DD; }}
 
+    /* ---- HEADER ESTILO WHATSAPP ---- */
     .wa-header {{
         background-color: #075E54;
-        padding: 10px 20px;
+        padding: 8px 16px;
         display: flex;
         align-items: center;
         position: fixed;
         top: 0; left: 0; right: 0;
         z-index: 999;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        height: 60px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }}
     .profile-pic {{
-        width: 42px; height: 42px;
-        background-color: #f0f0f0;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
-        margin-right: 15px;
-        display: flex; justify-content: center; align-items: center;
         overflow: hidden;
+        margin-right: 12px;
         flex-shrink: 0;
+        background-color: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(255,255,255,0.3);
     }}
-    .contact-info {{ color: white; font-family: sans-serif; }}
-    .contact-name {{ font-weight: bold; font-size: 14px; margin: 0; }}
-    .contact-status {{ font-size: 11px; margin: 0; opacity: 0.8; }}
-    .chat-space {{ margin-top: 80px; }}
+    .contact-info {{ color: white; font-family: sans-serif; line-height: 1.3; }}
+    .contact-name {{ font-weight: bold; font-size: 15px; margin: 0; }}
+    .contact-status {{ font-size: 12px; margin: 0; opacity: 0.85; color: #a8d5a2; }}
 
+    /* ---- ESPAÇO ABAIXO DO HEADER ---- */
+    .chat-space {{ margin-top: 70px; padding-bottom: 20px; }}
+
+    /* ---- BOLHAS ---- */
     html, body, [class*="st-"], p, div, span {{ color: #000000; }}
     .bubble {{
-        padding: 10px 14px;
-        border-radius: 10px;
-        margin-bottom: 8px;
-        max-width: 75%;
-        font-family: sans-serif;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        max-width: 72%;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         font-size: 14px;
         line-height: 1.5;
         word-wrap: break-word;
+        position: relative;
     }}
     .user {{
         background-color: #DCF8C6;
         color: #000000 !important;
         margin-left: auto;
-        border-radius: 10px 0px 10px 10px;
+        margin-right: 8px;
+        border-radius: 8px 0px 8px 8px;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
     }}
     .bot {{
         background-color: #FFFFFF;
         color: #000000 !important;
+        margin-left: 8px;
         margin-right: auto;
-        border: 1px solid #e6e6e6;
-        border-radius: 0px 10px 10px 10px;
+        border-radius: 0px 8px 8px 8px;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
     }}
 
+    /* ---- INPUT ---- */
     [data-testid="stChatInput"] textarea {{
         color: #000000 !important;
         background-color: #ffffff !important;
@@ -228,15 +250,21 @@ with chat_container:
 # INPUT E RESPOSTA
 # ---------------------------------------------------
 if prompt := st.chat_input("Como posso ajudar em seu projeto de dados?"):
+
+    # ✅ 1. Adiciona a mensagem do usuário ao histórico
     st.session_state.messages.append({"role": "user", "content": prompt})
 
+    # ✅ 2. Exibe imediatamente a mensagem do usuário
+    with chat_container:
+        conteudo_user = prompt.replace("\n", "<br>")
+        st.markdown(f'<div class="bubble user">{conteudo_user}</div>', unsafe_allow_html=True)
+
+    # ✅ 3. Chama a IA e exibe a resposta
     with st.spinner("Alosa analisando..."):
         resposta = perguntar_ia(st.session_state.messages, st.session_state.system_prompt)
 
     st.session_state.messages.append({"role": "assistant", "content": resposta})
 
     with chat_container:
-        conteudo_user = prompt.replace("\n", "<br>")
-        st.markdown(f'<div class="bubble user">{conteudo_user}</div>', unsafe_allow_html=True)
         conteudo_bot = resposta.replace("\n", "<br>")
         st.markdown(f'<div class="bubble bot">{conteudo_bot}</div>', unsafe_allow_html=True)
