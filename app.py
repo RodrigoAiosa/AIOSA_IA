@@ -56,19 +56,28 @@ def limitar_historico(messages: list) -> list:
     return messages
 
 
-def converter_para_gemini(messages: list) -> list:
-    gemini_messages = []
+def converter_para_gemini(messages: list, system_prompt: str) -> list:
+    """
+    Gemini v1beta não aceita 'system_instruction' via REST simples.
+    Solução: injeta o system prompt como par user/model no início do histórico.
+    """
+    gemini_messages = [
+        {"role": "user",  "parts": [{"text": system_prompt}]},
+        {"role": "model", "parts": [{"text": "Entendido! Vou seguir todas as instruções fornecidas."}]},
+    ]
+
     for msg in messages:
         role = msg["role"]
         content = msg["content"]
+        if role == "system":
+            continue
         if role == "assistant":
             role = "model"
-        elif role == "system":
-            continue
         gemini_messages.append({
             "role": role,
             "parts": [{"text": content}]
         })
+
     return gemini_messages
 
 
@@ -78,21 +87,15 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
     if not api_key:
         return "⚠️ Chave de API não configurada. Adicione GEMINI_API_KEY nos secrets do Streamlit."
 
-    # ✅ Corrigido: v1beta → v1
-    url = f"https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent?key={api_key}"
+    # v1beta aceita o formato completo com histórico
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={api_key}"
 
     headers = {"Content-Type": "application/json"}
 
     historico = limitar_historico(messages)
-    gemini_messages = converter_para_gemini(historico)
-
-    if not gemini_messages:
-        return "⚠️ Nenhuma mensagem para enviar."
+    gemini_messages = converter_para_gemini(historico, system_prompt)
 
     payload = {
-        "system_instruction": {
-            "parts": [{"text": system_prompt}]
-        },
         "contents": gemini_messages,
         "generationConfig": {
             "temperature": 0.2,
