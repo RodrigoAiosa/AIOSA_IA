@@ -224,6 +224,7 @@ st.markdown(f"""
         color: #000000 !important;
         background-color: #ffffff !important;
         caret-color: #000000 !important;
+        padding-left: 10px !important;
     }}
 </style>
 
