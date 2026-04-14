@@ -12,7 +12,9 @@ st.set_page_config(page_title="Alosa IA", page_icon="💬", layout="wide")
 # ---------------------------------------------------
 # CONSTANTES
 # ---------------------------------------------------
+# Alterado para v1beta para garantir suporte ao gemini-1.5-flash via REST
 MODEL = "gemini-1.5-flash"
+API_VERSION = "v1beta" 
 INSTRUCOES_PATH = "instrucoes.txt"
 FOTO_PATH = "eu_ia_foto.jpg"
 MAX_HISTORICO = 20
@@ -22,13 +24,12 @@ MAX_HISTORICO = 20
 # ---------------------------------------------------
 def get_base64_img(img_path: str) -> str:
     try:
-        with open(img_path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
-    except FileNotFoundError:
+        if os.path.exists(img_path):
+            with open(img_path, "rb") as f:
+                return base64.b64encode(f.read()).decode()
         return ""
     except Exception:
         return ""
-
 
 def markdown_para_html(texto: str) -> str:
     """Converte Markdown básico para HTML para renderizar nas bolhas."""
@@ -45,7 +46,6 @@ def markdown_para_html(texto: str) -> str:
     # Quebras de linha
     texto = texto.replace("\n", "<br>")
     return texto
-
 
 @st.cache_data
 def carregar_contexto() -> str:
@@ -69,39 +69,36 @@ def carregar_contexto() -> str:
     )
     return base + reforco
 
-
 def limitar_historico(messages: list) -> list:
     if len(messages) > MAX_HISTORICO:
         return messages[-MAX_HISTORICO:]
     return messages
 
-
 def converter_para_gemini(messages: list, system_prompt: str) -> list:
-    gemini_messages = [
-        {"role": "user",  "parts": [{"text": system_prompt}]},
-        {"role": "model", "parts": [{"text": "Entendido! Vou seguir todas as instruções fornecidas."}]},
-    ]
+    # O Gemini 1.5 aceita system_instruction separadamente no payload, 
+    # mas para manter a compatibilidade com a função legada de chat:
+    gemini_messages = []
+    
+    # Adicionando o contexto como a primeira interação
+    gemini_messages.append({"role": "user", "parts": [{"text": system_prompt}]})
+    gemini_messages.append({"role": "model", "parts": [{"text": "Entendido. Serei direto, técnico e seguirei todas as instruções."}]})
+    
     for msg in messages:
-        role = msg["role"]
-        content = msg["content"]
-        if role == "system":
-            continue
-        if role == "assistant":
-            role = "model"
+        role = "model" if msg["role"] == "assistant" else "user"
         gemini_messages.append({
             "role": role,
-            "parts": [{"text": content}]
+            "parts": [{"text": msg["content"]}]
         })
     return gemini_messages
-
 
 def perguntar_ia(messages: list, system_prompt: str) -> str:
     api_key = st.secrets.get("GEMINI_API_KEY")
 
     if not api_key:
-        return "⚠️ Chave de API não configurada. Adicione GEMINI_API_KEY nos secrets do Streamlit."
+        return "⚠️ Chave de API não configurada. Adicione GEMINI_API_KEY nos secrets."
 
-    url = f"https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent?key={api_key}"
+    # URL atualizada para v1beta
+    url = f"https://generativelanguage.googleapis.com/{API_VERSION}/models/{MODEL}:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
 
     historico = limitar_historico(messages)
@@ -117,49 +114,32 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
 
     try:
         r = requests.post(url, headers=headers, json=payload, timeout=30)
-
+        
         if not r.ok:
             status = r.status_code
             try:
-                erro_detalhe = r.json()
-                msg_erro = erro_detalhe.get("error", {}).get("message", str(erro_detalhe))
-            except Exception:
-                msg_erro = r.text[:300]
-            if status in (401, 403):
-                return "🔑 Chave de API inválida ou sem permissão. Verifique o GEMINI_API_KEY nos secrets."
-            elif status == 429:
-                return "🚦 Limite de requisições atingido. Aguarde alguns segundos e tente novamente."
-            else:
-                return f"❌ Erro HTTP {status}: {msg_erro}"
+                erro_json = r.json()
+                msg_erro = erro_json.get("error", {}).get("message", "Erro desconhecido")
+            except:
+                msg_erro = r.text
+            return f"❌ Erro HTTP {status}: {msg_erro}"
 
         data = r.json()
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
-    except requests.exceptions.Timeout:
-        return "⏱️ A requisição demorou demais. Tente novamente em instantes."
-    except requests.exceptions.ConnectionError as e:
-        return f"🔌 Erro de conexão: {str(e)[:300]}"
-    except (KeyError, IndexError) as e:
-        return f"⚠️ Resposta inesperada da API. Detalhe: {str(e)}"
     except Exception as e:
-        return f"❌ Erro inesperado: {type(e).__name__}: {str(e)[:300]}"
-
+        return f"❌ Erro na comunicação: {str(e)}"
 
 # ---------------------------------------------------
-# CARREGA FOTO E MONTA HEADER
+# INTERFACE E ESTILIZAÇÃO
 # ---------------------------------------------------
 img_base64 = get_base64_img(FOTO_PATH)
-
-if img_base64:
-    foto_html = f"<img src='data:image/jpeg;base64,{img_base64}' style='width:42px;height:42px;object-fit:cover;border-radius:50%;display:block;'>"
-else:
-    foto_html = "<span style='font-size:22px;color:#fff;'>👤</span>"
+foto_html = f"<img src='data:image/jpeg;base64,{img_base64}' style='width:42px;height:42px;object-fit:cover;border-radius:50%;'>" if img_base64 else "👤"
 
 st.markdown(f"""
 <style>
     header, footer, #MainMenu {{visibility: hidden;}}
     .stApp {{ background-color: #ECE5DD; }}
-
     .wa-header {{
         background-color: #075E54;
         padding: 8px 16px;
@@ -171,76 +151,26 @@ st.markdown(f"""
         height: 60px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }}
-    .profile-pic {{
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        overflow: hidden;
-        margin-right: 12px;
-        flex-shrink: 0;
-        background-color: #aaa;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }}
-    .contact-info {{ color: white; font-family: sans-serif; line-height: 1.3; }}
+    .profile-pic {{ width: 42px; height: 42px; border-radius: 50%; margin-right: 12px; }}
+    .contact-info {{ color: white; font-family: sans-serif; }}
     .contact-name {{ font-weight: bold; font-size: 15px; margin: 0; }}
-    .contact-status {{ font-size: 12px; margin: 0; opacity: 0.85; color: #a8d5a2; }}
-    .chat-space {{ margin-top: 70px; padding-bottom: 20px; }}
-
-    html, body, [class*="st-"], p, div, span {{ color: #000000; }}
+    .contact-status {{ font-size: 12px; margin: 0; color: #a8d5a2; }}
+    .chat-space {{ margin-top: 80px; }}
     .bubble {{
         padding: 8px 12px;
         border-radius: 8px;
-        margin-bottom: 6px;
-        max-width: 72%;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        margin-bottom: 10px;
+        max-width: 75%;
+        font-family: sans-serif;
         font-size: 14px;
-        line-height: 1.5;
-        word-wrap: break-word;
-    }}
-    .user {{
-        background-color: #DCF8C6;
-        color: #000000 !important;
-        margin-left: auto;
-        margin-right: 8px;
-        border-radius: 8px 0px 8px 8px;
         box-shadow: 0 1px 1px rgba(0,0,0,0.1);
     }}
-    .bot {{
-        background-color: #FFFFFF;
-        color: #000000 !important;
-        margin-left: 8px;
-        margin-right: auto;
-        border-radius: 0px 8px 8px 8px;
-        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-    }}
-    .bubble a {{
-        color: #075E54 !important;
-        font-weight: bold;
-        text-decoration: underline;
-    }}
-    [data-testid="stChatInput"] textarea {{
-        color: #000000 !important;
-        background-color: #ffffff !important;
-        caret-color: #000000 !important;
-        padding-left: 10px !important;
-    }}
+    .user {{ background-color: #DCF8C6; margin-left: auto; border-radius: 8px 0 8px 8px; }}
+    .bot {{ background-color: #FFFFFF; margin-right: auto; border-radius: 0 8px 8px 8px; }}
 </style>
 
-<script>
-function focusChatInput() {{
-    const el = document.querySelector('[data-testid="stChatInput"] textarea');
-    if (el) {{ el.focus(); }}
-    else {{ setTimeout(focusChatInput, 300); }}
-}}
-window.addEventListener('load', focusChatInput);
-</script>
-
 <div class="wa-header">
-    <div class="profile-pic">
-        {foto_html}
-    </div>
+    <div class="profile-pic">{foto_html}</div>
     <div class="contact-info">
         <p class="contact-name">Alosa — Assistente do Rodrigo Aiosa</p>
         <p class="contact-status">● online</p>
@@ -250,7 +180,7 @@ window.addEventListener('load', focusChatInput);
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------
-# INICIALIZAÇÃO DO ESTADO
+# LÓGICA DO CHAT
 # ---------------------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -258,34 +188,18 @@ if "messages" not in st.session_state:
 if "system_prompt" not in st.session_state:
     st.session_state.system_prompt = carregar_contexto()
 
-# ---------------------------------------------------
-# EXIBIÇÃO DO HISTÓRICO DE MENSAGENS
-# ---------------------------------------------------
-chat_container = st.container()
+# Exibe mensagens existentes
+for msg in st.session_state.messages:
+    role_class = "user" if msg["role"] == "user" else "bot"
+    st.markdown(f'<div class="bubble {role_class}">{markdown_para_html(msg["content"])}</div>', unsafe_allow_html=True)
 
-with chat_container:
-    for msg in st.session_state.messages:
-        tipo = "user" if msg["role"] == "user" else "bot"
-        conteudo = markdown_para_html(msg["content"])
-        st.markdown(f'<div class="bubble {tipo}">{conteudo}</div>', unsafe_allow_html=True)
-
-# ---------------------------------------------------
-# INPUT E RESPOSTA
-# ---------------------------------------------------
+# Input do usuário
 if prompt := st.chat_input("Como posso ajudar em seu projeto de dados?"):
-
-    # 1. Adiciona e exibe mensagem do usuário imediatamente
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with chat_container:
-        conteudo_user = markdown_para_html(prompt)
-        st.markdown(f'<div class="bubble user">{conteudo_user}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="bubble user">{markdown_para_html(prompt)}</div>', unsafe_allow_html=True)
 
-    # 2. Chama a IA
     with st.spinner("Alosa analisando..."):
         resposta = perguntar_ia(st.session_state.messages, st.session_state.system_prompt)
-
-    # 3. Exibe resposta com Markdown convertido para HTML
-    st.session_state.messages.append({"role": "assistant", "content": resposta})
-    with chat_container:
-        conteudo_bot = markdown_para_html(resposta)
-        st.markdown(f'<div class="bubble bot">{conteudo_bot}</div>', unsafe_allow_html=True)
+        st.session_state.messages.append({"role": "assistant", "content": resposta})
+        st.markdown(f'<div class="bubble bot">{markdown_para_html(resposta)}</div>', unsafe_allow_html=True)
+        st.rerun()
