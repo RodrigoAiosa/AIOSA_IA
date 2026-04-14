@@ -101,7 +101,7 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
     if not api_key:
         return "⚠️ Chave de API não configurada. Adicione GEMINI_API_KEY nos secrets do Streamlit."
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
 
     historico = limitar_historico(messages)
