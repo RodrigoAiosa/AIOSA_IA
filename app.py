@@ -12,7 +12,7 @@ st.set_page_config(page_title="Alosa IA", page_icon="💬", layout="wide")
 # ---------------------------------------------------
 # CONSTANTES
 # ---------------------------------------------------
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-1.5-flash"
 INSTRUCOES_PATH = "instrucoes.txt"
 FOTO_PATH = "eu_ia_foto.jpg"
 MAX_HISTORICO = 20
