@@ -57,8 +57,9 @@ def carregar_contexto() -> str:
 
     reforco = (
         "\n\n### REGRAS IMPORTANTES:\n"
-        "1. LINK DE CURSOS: Sempre que o usuário mencionar cursos online, "
-        "inclua este link no texto: https://rodrigoaiosa.streamlit.app/cursos_online\n"
+        "1. LINK DE CURSOS: Sempre que o usuário mencionar interesse em comprar cursos ou "
+        "ver cursos disponíveis, exiba OBRIGATORIAMENTE este link em destaque: "
+        "[🎓 Ver Cursos Online](https://rodrigoaiosa.github.io/promocao_curso_online/)\n"
         "2. LINK DO WHATSAPP: Sempre que o usuário demonstrar interesse em contratar, "
         "treinar equipe, falar com o Rodrigo ou pedir contato, exiba o link abaixo "
         "como hiperlink clicável em Markdown:\n"
