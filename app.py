@@ -64,12 +64,16 @@ def markdown_para_html(texto: str, escapar: bool = False) -> str:
     return texto
 
 
-@st.cache_data
 def carregar_contexto() -> str:
     """
     Fonte única das regras do agente. Todo o conteúdo comercial e de
     conformidade vive em instrucoes.txt — nada de regras duplicadas aqui,
     pra não haver risco de desalinhamento entre os dois arquivos.
+
+    SEM @st.cache_data de propósito: essa função só roda uma vez por sessão
+    (ver trava mais abaixo), então cachear não ganha performance nenhuma —
+    só risco de manter uma versão antiga do arquivo na memória entre
+    deploys, caso o container não reinicie 100% limpo.
     """
     if os.path.exists(INSTRUCOES_PATH):
         with open(INSTRUCOES_PATH, "r", encoding="utf-8") as f:
