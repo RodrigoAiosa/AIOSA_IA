@@ -193,7 +193,7 @@ def rodar_testes():
     for cenario in CENARIOS:
         print(f"Rodando cenário {cenario['id']}: {cenario['categoria']}...")
         resposta_bruta = perguntar_gemini(api_key, system_prompt, cenario["entrada"])
-        resposta_final = blindar_resposta(resposta_bruta)
+        resposta_final = blindar_resposta(resposta_bruta, historico_usuario=cenario["entrada"])
 
         acionou_rede = (resposta_final != resposta_bruta)
         if acionou_rede:
