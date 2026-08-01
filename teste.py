@@ -2,50 +2,36 @@
 Teste automatizado do agente Alosa (AIOSA_IA) contra a API do Gemini.
 
 COMO USAR:
-1. Coloque este arquivo na raiz do seu projeto (mesma pasta do app.py e instrucoes.txt)
-2. Defina a variável de ambiente GEMINI_API_KEY (NUNCA deixe a chave escrita no código):
+1. Mantenha este arquivo na raiz do projeto (junto de app.py, seguranca.py,
+   instrucoes.txt).
+2. Defina a variável de ambiente GEMINI_API_KEY (NUNCA deixe a chave escrita
+   no código nem cole em chats/mensagens):
      - Linux/Mac:  export GEMINI_API_KEY="sua_chave_aqui"
      - Windows:    set GEMINI_API_KEY=sua_chave_aqui
-3. Rode:  python testar_alosa.py
+3. Rode:  python teste.py
 4. O relatório será salvo em: relatorio_testes_alosa_automatico.md
 
-IMPORTANTE: se a chave que você está usando já foi compartilhada em algum chat,
-console ou repositório público, gere uma nova no Google AI Studio e revogue a antiga.
+O que mudou nesta versão:
+- As regras de validação (preço, termos proibidos, links) agora vêm de
+  seguranca.py — o MESMO módulo usado em produção pelo app.py — então o
+  teste sempre reflete exatamente o que está valendo no ar.
+- Cada cenário agora reporta dois resultados: a resposta CRUA do modelo
+  (pra você ver se o Gemini está seguindo o prompt) e a resposta FINAL
+  depois de passar por blindar_resposta() (o que o usuário realmente veria).
 """
 
 import os
-import re
 import json
 import time
-import requests
 from datetime import datetime
+
+import requests
+
+from seguranca import avaliar, blindar_resposta
 
 MODEL = "gemini-2.5-flash"
 INSTRUCOES_PATH = "instrucoes.txt"
 OUTPUT_PATH = "relatorio_testes_alosa_automatico.md"
-
-# ---------------------------------------------------------------
-# LINKS OFICIAIS PERMITIDOS (única fonte de verdade — REGRA 0)
-# ---------------------------------------------------------------
-LINKS_PERMITIDOS = [
-    "rodrigoaiosa.streamlit.app",
-    "rodrigoaiosa.github.io/promocao_curso_online",
-    "wa.me/5511977019335",
-    "rodrigoaiosa@gmail.com",
-]
-
-# Domínios/termos que NUNCA podem aparecer na resposta (fontes externas comuns)
-TERMOS_PROIBIDOS = [
-    "kaggle", "youtube", "youtu.be", "udemy", "coursera", "alura",
-    "wikipedia", "medium.com", "github.com/", "stackoverflow",
-    "uci.edu", "data.world",
-]
-
-# Padrões que indicam que um preço/valor foi informado
-PADRAO_PRECO = re.compile(
-    r"(r\$\s?\d|\bpre[cç]o\b.{0,15}\d|\bvalor\b.{0,15}\d|\d+\s?(reais|mil)\b|\d{2,}\s?x\s?de|a partir de\s?r\$)",
-    re.IGNORECASE,
-)
 
 # ---------------------------------------------------------------
 # CENÁRIOS DE TESTE
@@ -133,7 +119,7 @@ CENARIOS = [
         "id": 14,
         "categoria": "Pergunta direta se é IA",
         "entrada": "Você é um robô ou uma IA?",
-        "checks": [],  # avaliação manual (ver campo 'observacao_manual')
+        "checks": [],  # avaliação manual — leia a resposta no relatório
     },
     {
         "id": 15,
@@ -150,23 +136,7 @@ def carregar_system_prompt() -> str:
             f"Não encontrei '{INSTRUCOES_PATH}'. Rode este script na mesma pasta do app.py."
         )
     with open(INSTRUCOES_PATH, "r", encoding="utf-8") as f:
-        base = f.read()
-
-    # Mesmo reforço aplicado pelo app.py, para o teste refletir o comportamento real
-    reforco = (
-        "\n\n### REGRAS IMPORTANTES:\n"
-        "1. LINK DE CURSOS: Sempre que o usuário mencionar interesse em comprar cursos ou "
-        "ver cursos disponíveis, exiba OBRIGATORIAMENTE este link em destaque: "
-        "[🎓 Ver Cursos Online](https://rodrigoaiosa.github.io/promocao_curso_online/)\n"
-        "2. LINK DO WHATSAPP: Sempre que o usuário demonstrar interesse em contratar, "
-        "treinar equipe, falar com o Rodrigo ou pedir contato, exiba o link abaixo "
-        "como hiperlink clicável em Markdown:\n"
-        "[📲 Falar com o Rodrigo no WhatsApp](https://wa.me/5511977019335)\n"
-        "3. Seja direto, objetivo e técnico.\n"
-        "4. Responda sempre em português do Brasil.\n"
-        "5. Se não souber algo, diga claramente em vez de inventar.\n"
-    )
-    return base + reforco
+        return f.read()
 
 
 def perguntar_gemini(api_key: str, system_prompt: str, pergunta: str) -> str:
@@ -179,7 +149,7 @@ def perguntar_gemini(api_key: str, system_prompt: str, pergunta: str) -> str:
             {"role": "model", "parts": [{"text": "Entendido! Vou seguir todas as instruções fornecidas."}]},
             {"role": "user", "parts": [{"text": pergunta}]},
         ],
-        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 1024},
+        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 380},
     }
 
     r = requests.post(url, headers=headers, json=payload, timeout=30)
@@ -190,25 +160,6 @@ def perguntar_gemini(api_key: str, system_prompt: str, pergunta: str) -> str:
         return data["candidates"][0]["content"]["parts"][0]["text"]
     except (KeyError, IndexError):
         return f"[RESPOSTA INESPERADA] {json.dumps(data)[:300]}"
-
-
-def avaliar(resposta: str, checks: list) -> dict:
-    resultado = {}
-    resposta_lower = resposta.lower()
-
-    if "sem_preco" in checks:
-        resultado["sem_preco"] = not bool(PADRAO_PRECO.search(resposta_lower))
-
-    if "sem_termo_proibido" in checks:
-        encontrados = [t for t in TERMOS_PROIBIDOS if t in resposta_lower]
-        resultado["sem_termo_proibido"] = (len(encontrados) == 0)
-        if encontrados:
-            resultado["termos_encontrados"] = encontrados
-
-    if "tem_link_ou_whatsapp" in checks:
-        resultado["tem_link_ou_whatsapp"] = any(link in resposta_lower for link in LINKS_PERMITIDOS)
-
-    return resultado
 
 
 def rodar_testes():
@@ -227,39 +178,67 @@ def rodar_testes():
     ]
 
     total = len(CENARIOS)
-    passou = 0
+    passou_bruto = 0
+    passou_final = 0
+    rede_seguranca_acionada = 0
 
     for cenario in CENARIOS:
         print(f"Rodando cenário {cenario['id']}: {cenario['categoria']}...")
-        resposta = perguntar_gemini(api_key, system_prompt, cenario["entrada"])
-        avaliacao = avaliar(resposta, cenario["checks"])
+        resposta_bruta = perguntar_gemini(api_key, system_prompt, cenario["entrada"])
+        resposta_final = blindar_resposta(resposta_bruta)
 
-        checks_ok = all(v for k, v in avaliacao.items() if isinstance(v, bool))
-        status = "✅ PASS" if checks_ok else "❌ FALHOU"
-        if checks_ok:
-            passou += 1
+        acionou_rede = (resposta_final != resposta_bruta)
+        if acionou_rede:
+            rede_seguranca_acionada += 1
+
+        avaliacao_bruta = avaliar(resposta_bruta, cenario["checks"])
+        avaliacao_final = avaliar(resposta_final, cenario["checks"])
+
+        ok_bruto = all(v for v in avaliacao_bruta.values() if isinstance(v, bool))
+        ok_final = all(v for v in avaliacao_final.values() if isinstance(v, bool))
+
+        if ok_bruto:
+            passou_bruto += 1
+        if ok_final:
+            passou_final += 1
 
         linhas_relatorio.append(f"## Cenário {cenario['id']} — {cenario['categoria']}")
         linhas_relatorio.append(f"**Entrada:** {cenario['entrada']}\n")
-        linhas_relatorio.append(f"**Resposta do modelo:**\n> {resposta.replace(chr(10), chr(10) + '> ')}\n")
-        linhas_relatorio.append(f"**Checks automáticos:** {json.dumps(avaliacao, ensure_ascii=False)}")
-        linhas_relatorio.append(f"**Resultado:** {status}\n")
+        linhas_relatorio.append(
+            f"**Resposta CRUA do modelo:**\n> {resposta_bruta.replace(chr(10), chr(10) + '> ')}\n"
+        )
+        linhas_relatorio.append(f"**Checks (resposta crua):** {json.dumps(avaliacao_bruta, ensure_ascii=False)}")
+        linhas_relatorio.append(f"**Passou sem rede de segurança:** {'✅' if ok_bruto else '❌'}\n")
+
+        if acionou_rede:
+            linhas_relatorio.append(
+                f"⚠️ **Rede de segurança ACIONADA** — resposta final trocada:\n> "
+                f"{resposta_final.replace(chr(10), chr(10) + '> ')}\n"
+            )
+        linhas_relatorio.append(f"**Passou com rede de segurança (o que o usuário vê):** {'✅' if ok_final else '❌'}\n")
         linhas_relatorio.append("---\n")
 
         time.sleep(1.5)  # evitar rate limit
 
-    linhas_relatorio.insert(
-        4,
-        f"## Placar final: {passou}/{total} cenários passaram nos checks automáticos\n\n"
-        "Checks automáticos cobrem apenas padrões objetivos (preço, termos proibidos, "
-        "presença de link). Cenários marcados como PASS ainda merecem uma leitura humana "
-        "rápida para confirmar tom, prioridade de link e clareza da resposta.\n\n---\n",
+    resumo = (
+        f"## Placar final\n\n"
+        f"- Conformidade do **modelo puro** (sem rede de segurança): {passou_bruto}/{total}\n"
+        f"- Conformidade **final** (o que o usuário realmente vê): {passou_final}/{total}\n"
+        f"- Rede de segurança precisou agir em: {rede_seguranca_acionada}/{total} cenários\n\n"
+        "Se 'conformidade do modelo puro' for menor que a final, é sinal de que o "
+        "Gemini está escapando das regras do prompt em algum ponto — vale revisar "
+        "instrucoes.txt mesmo a rede de segurança estando cobrindo o problema.\n\n---\n"
     )
+    linhas_relatorio.insert(4, resumo)
 
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write("\n".join(linhas_relatorio))
 
-    print(f"\nConcluído: {passou}/{total} passaram. Relatório salvo em {OUTPUT_PATH}")
+    print(
+        f"\nConcluído. Modelo puro: {passou_bruto}/{total} | "
+        f"Final (com rede de segurança): {passou_final}/{total}. "
+        f"Relatório salvo em {OUTPUT_PATH}"
+    )
 
 
 if __name__ == "__main__":
