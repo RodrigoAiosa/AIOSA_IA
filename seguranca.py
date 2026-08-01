@@ -17,6 +17,7 @@ import re
 LINKS_PERMITIDOS = [
     "rodrigoaiosa.streamlit.app",
     "rodrigoaiosa.github.io/promocao_curso_online",
+    "ai-bidatagenerator.streamlit.app",
     "wa.me/5511977019335",
     "rodrigoaiosa@gmail.com",
 ]
