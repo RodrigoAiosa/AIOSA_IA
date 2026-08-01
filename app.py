@@ -20,7 +20,7 @@ MODEL = "gemini-2.5-flash"
 INSTRUCOES_PATH = "instrucoes.txt"
 FOTO_PATH = "eu_ia_foto.jpg"
 MAX_HISTORICO = 12          # antes: 20 — menos tokens enviados por chamada
-MAX_OUTPUT_TOKENS = 380     # antes: 1024 — respostas devem ser curtas (BLOCO 8)
+MAX_OUTPUT_TOKENS = 550     # antes: 380 estava cortando respostas no meio de links
 MAX_TENTATIVAS = 3          # retries em caso de 429/5xx
 TIMEOUT_SEGUNDOS = 30
 
@@ -334,9 +334,15 @@ if prompt := st.chat_input("Como posso ajudar em seu projeto de dados?"):
     # 2. Chama a IA
     with st.spinner("Alosa analisando..."):
         resposta_bruta = perguntar_ia(st.session_state.messages, st.session_state.system_prompt)
-        # Rede de segurança em código: garante REGRA 0/REGRA 1 mesmo se o
-        # modelo falhar em seguir o prompt (jailbreak, alucinação, etc.)
-        resposta = blindar_resposta(resposta_bruta)
+        # Rede de segurança em código: garante REGRA 0/REGRA 1/link do gerador
+        # de dados mesmo se o modelo falhar em seguir o prompt ou for cortado
+        # no meio (ex: limite de tokens, jailbreak, alucinação).
+        # Passa as últimas mensagens do USUÁRIO (não só a atual) porque o
+        # pedido pode ter sido feito 1-2 turnos atrás na conversa.
+        mensagens_usuario_recentes = [
+            m["content"] for m in st.session_state.messages[-6:] if m["role"] == "user"
+        ]
+        resposta = blindar_resposta(resposta_bruta, historico_usuario=mensagens_usuario_recentes)
 
     # 3. Exibe resposta com efeito de digitação (percepção de velocidade)
     st.session_state.messages.append({"role": "assistant", "content": resposta})
