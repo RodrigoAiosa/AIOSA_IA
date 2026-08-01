@@ -50,6 +50,23 @@ RESPOSTA_PADRAO_FONTE_EXTERNA = (
     "🎓 [Curso Online — Promoção](https://rodrigoaiosa.github.io/promocao_curso_online/)"
 )
 
+# Gatilho: usuário pedindo ferramenta/site pra gerar dados fictícios para Power BI
+PADRAO_PEDIDO_GERADOR_DADOS = re.compile(
+    r"(gerar dados|gerador de dados|dados? fict[íi]ci[oa]|dados? falsos?|"
+    r"dados? de teste|dataset|base de dados|site.{0,15}gerar|"
+    r"ferramenta.{0,15}(gerar|dados))",
+    re.IGNORECASE,
+)
+
+LINK_GERADOR_DADOS = "https://ai-bidatagenerator.streamlit.app/"
+
+RESPOSTA_PADRAO_GERADOR_DADOS = (
+    "Para gerar dados fictícios/de teste para usar no Power BI, use a "
+    "ferramenta oficial do Rodrigo Aiosa:\n\n"
+    "📊 **Gerador de Dados para Power BI**\n"
+    f"[Acessar o gerador]({LINK_GERADOR_DADOS})"
+)
+
 
 def contem_preco(texto: str) -> bool:
     return bool(PADRAO_PRECO.search(texto.lower()))
@@ -65,17 +82,58 @@ def contem_link_oficial(texto: str) -> bool:
     return any(link in texto_lower for link in LINKS_PERMITIDOS)
 
 
-def blindar_resposta(resposta: str) -> str:
+def pedido_gerador_dados(historico_usuario) -> bool:
+    """
+    `historico_usuario` pode ser uma string única (mensagem atual) ou uma
+    lista de strings (mensagens do usuário na conversa). Checa todas,
+    porque o pedido pode ter sido feito 1-2 turnos atrás (ex: bot pergunta
+    "qual você quer?" e o usuário só responde "sim, recomenda aí").
+    """
+    if isinstance(historico_usuario, str):
+        historico_usuario = [historico_usuario]
+    texto_completo = " ".join(historico_usuario).lower()
+    return bool(PADRAO_PEDIDO_GERADOR_DADOS.search(texto_completo))
+
+
+def garantir_link_gerador_dados(historico_usuario, resposta: str) -> str:
+    """
+    Garantia por código (não só por prompt): se o usuário pediu, em
+    qualquer ponto recente da conversa, uma ferramenta pra gerar dados de
+    Power BI, o link completo TEM que aparecer na resposta atual quando
+    fizer sentido (ex: resposta de confirmação tipo "sim, pode recomendar").
+    Se o modelo esqueceu, cortou a resposta no meio, ou gerou o link
+    quebrado (truncado por limite de tokens), substitui pela resposta
+    padrão já pronta e correta.
+    """
+    if not pedido_gerador_dados(historico_usuario):
+        return resposta
+
+    if LINK_GERADOR_DADOS in resposta:
+        return resposta  # o modelo já gerou certo e completo
+
+    return RESPOSTA_PADRAO_GERADOR_DADOS
+
+
+def blindar_resposta(resposta: str, historico_usuario=None) -> str:
     """
     Rede de segurança em código: aplicada DEPOIS da resposta do LLM.
-    Garante REGRA 0 e REGRA 1 mesmo que o modelo falhe em segui-las.
-    Sempre rode isso antes de exibir qualquer resposta ao usuário.
+    Garante REGRA 0, REGRA 1 e a REGRA do Gerador de Dados mesmo que o
+    modelo falhe em segui-las (ou corte a resposta no meio, ex: limite
+    de tokens). Sempre rode isso antes de exibir qualquer resposta ao usuário.
+
+    `historico_usuario`: string (mensagem atual) ou lista de strings
+    (mensagens do usuário na conversa). Deve ser sempre passado em
+    produção para a checagem do gerador de dados funcionar em conversas
+    de vários turnos.
     """
     if contem_preco(resposta):
         return RESPOSTA_PADRAO_PRECO
 
     if termos_externos_encontrados(resposta):
         return RESPOSTA_PADRAO_FONTE_EXTERNA
+
+    if historico_usuario:
+        resposta = garantir_link_gerador_dados(historico_usuario, resposta)
 
     return resposta
 
