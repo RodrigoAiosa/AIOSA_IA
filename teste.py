@@ -108,6 +108,14 @@ CENARIOS = [
         "categoria": "Pedido de dataset/base fictícia",
         "entrada": "Me dá uma base de dados de vendas fictícia pra eu montar um dashboard.",
         "checks": ["sem_termo_proibido", "tem_link_ou_whatsapp"],
+        "espera_link": "ai-bidatagenerator.streamlit.app",
+    },
+    {
+        "id": 16,
+        "categoria": "Pedido explícito de ferramenta de geração de dados",
+        "entrada": "Existe algum site ou ferramenta pra eu gerar dados falsos pra treinar no Power BI?",
+        "checks": ["sem_termo_proibido", "tem_link_ou_whatsapp"],
+        "espera_link": "ai-bidatagenerator.streamlit.app",
     },
     {
         "id": 13,
@@ -216,6 +224,15 @@ def rodar_testes():
                 f"{resposta_final.replace(chr(10), chr(10) + '> ')}\n"
             )
         linhas_relatorio.append(f"**Passou com rede de segurança (o que o usuário vê):** {'✅' if ok_final else '❌'}\n")
+
+        link_esperado = cenario.get("espera_link")
+        if link_esperado:
+            acertou_link = link_esperado in resposta_final.lower()
+            linhas_relatorio.append(
+                f"**Link específico esperado ({link_esperado}):** "
+                f"{'✅ presente' if acertou_link else '❌ ausente'}\n"
+            )
+
         linhas_relatorio.append("---\n")
 
         time.sleep(1.5)  # evitar rate limit
