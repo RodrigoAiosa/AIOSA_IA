@@ -11,13 +11,13 @@ COMO USAR:
 3. Rode:  python teste.py
 4. O relatório será salvo em: relatorio_testes_alosa_automatico.md
 
-O que mudou nesta versão:
-- As regras de validação (preço, termos proibidos, links) agora vêm de
+O que este teste valida:
+- As regras de validação (preço, termos proibidos, links) vêm de
   seguranca.py — o MESMO módulo usado em produção pelo app.py — então o
   teste sempre reflete exatamente o que está valendo no ar.
-- Cada cenário agora reporta dois resultados: a resposta CRUA do modelo
-  (pra você ver se o Gemini está seguindo o prompt) e a resposta FINAL
-  depois de passar por blindar_resposta() (o que o usuário realmente veria).
+- Cada cenário reporta dois resultados: a resposta CRUA do modelo (pra
+  você ver se o Gemini está seguindo o prompt) e a resposta FINAL depois
+  de passar por blindar_resposta() (o que o usuário realmente veria).
 """
 
 import os
@@ -157,7 +157,7 @@ def perguntar_gemini(api_key: str, system_prompt: str, pergunta: str) -> str:
             {"role": "model", "parts": [{"text": "Entendido! Vou seguir todas as instruções fornecidas."}]},
             {"role": "user", "parts": [{"text": pergunta}]},
         ],
-        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 380},
+        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 550},
     }
 
     r = requests.post(url, headers=headers, json=payload, timeout=30)
