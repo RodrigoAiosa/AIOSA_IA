@@ -234,7 +234,15 @@ st.markdown(f"""
     }}
     .contact-info {{ color: white; font-family: sans-serif; line-height: 1.3; }}
     .contact-name {{ font-weight: bold; font-size: 15px; margin: 0; }}
-    .contact-status {{ font-size: 12px; margin: 0; opacity: 0.85; color: #a8d5a2; }}
+    .contact-status {{ font-size: 12px; margin: 0; opacity: 0.9; color: #a8d5a2; display: flex; align-items: center; gap: 5px; }}
+    .status-dot {{
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #25D366;
+        flex-shrink: 0;
+    }}
     .chat-space {{ margin-top: 70px; padding-bottom: 20px; }}
 
     html, body, [class*="st-"], p, div, span {{ color: #000000; }}
@@ -292,7 +300,7 @@ window.addEventListener('load', focusChatInput);
     </div>
     <div class="contact-info">
         <p class="contact-name">Alosa — Assistente do Rodrigo Aiosa</p>
-        <p class="contact-status">● online</p>
+        <p class="contact-status"><span class="status-dot"></span>online</p>
     </div>
 </div>
 <div class="chat-space"></div>
