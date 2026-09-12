@@ -50,8 +50,10 @@ def markdown_para_html(texto: str, escapar: bool = False) -> str:
         texto = html.escape(texto)
 
     # Links: [texto](url) → <a href="url">texto</a>
+    # Aceita http(s):// e mailto: — antes só reconhecia http(s), então
+    # links de e-mail ficavam exibidos como texto cru com colchetes.
     texto = re.sub(
-        r'\[([^\]]+)\]\((https?://[^\)]+)\)',
+        r'\[([^\]]+)\]\(((?:https?://|mailto:)[^\)]+)\)',
         r'<a href="\2" target="_blank" style="color:#075E54;font-weight:bold;">\1</a>',
         texto
     )
