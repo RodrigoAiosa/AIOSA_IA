@@ -1,0 +1,39 @@
+name: Teste QA do Alosa
+
+# Roda automaticamente sempre que as regras ou a rede de segurança mudam,
+# e também pode ser disparado manualmente pela aba "Actions" do GitHub.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "instrucoes.txt"
+      - "seguranca.py"
+      - "teste.py"
+  workflow_dispatch: {}
+
+jobs:
+  teste-conformidade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Rodar teste.py contra a API do Gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python teste.py
+
+      - name: Publicar relatório como artefato
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-testes-alosa
+          path: relatorio_testes_alosa_automatico.md

@@ -5,6 +5,8 @@ import base64
 import re
 import html
 import time
+import csv
+from datetime import datetime
 
 from seguranca import blindar_resposta
 
@@ -20,9 +22,11 @@ MODEL = "gemini-2.5-flash"
 INSTRUCOES_PATH = "instrucoes.txt"
 FOTO_PATH = "eu_ia_foto.jpg"
 MAX_HISTORICO = 12          # antes: 20 — menos tokens enviados por chamada
+MAX_HISTORICO_EXIBICAO = 40 # limite de bolhas renderizadas na tela (perf)
 MAX_OUTPUT_TOKENS = 550     # antes: 380 estava cortando respostas no meio de links
 MAX_TENTATIVAS = 3          # retries em caso de 429/5xx
 TIMEOUT_SEGUNDOS = 30
+LOG_CONVERSAS_PATH = "conversas_log.csv"
 
 # ---------------------------------------------------
 # FUNÇÕES UTILITÁRIAS
@@ -39,15 +43,17 @@ def get_base64_img(img_path: str) -> str:
         return ""
 
 
-def markdown_para_html(texto: str, escapar: bool = False) -> str:
+def markdown_para_html(texto: str) -> str:
     """
     Converte Markdown básico para HTML para renderizar nas bolhas.
-    `escapar=True` deve ser usado para texto vindo do USUÁRIO, para evitar
-    que HTML/JS digitado no chat seja executado (XSS) quando renderizado
-    com unsafe_allow_html=True.
+    SEMPRE escapa HTML primeiro (usuário E modelo) antes de aplicar as
+    substituições de markdown — html.escape() só mexe em & < > " ', não
+    afeta os caracteres usados pelo nosso markdown ([ ] ( ) * ), então a
+    conversão continua funcionando normalmente. Isso fecha dois riscos:
+    1) usuário digitando HTML/JS no chat (XSS);
+    2) o modelo (Gemini) gerando algo parecido com HTML por engano/jailbreak.
     """
-    if escapar:
-        texto = html.escape(texto)
+    texto = html.escape(texto)
 
     # Links: [texto](url) → <a href="url">texto</a>
     # Aceita http(s):// e mailto: — antes só reconhecia http(s), então
@@ -89,6 +95,31 @@ def limitar_historico(messages: list) -> list:
     return messages
 
 
+def registrar_conversa(pergunta: str, resposta: str) -> None:
+    """
+    Log leve de conversas (mini "captura de lead"): grava cada troca num
+    CSV local, pra você conseguir ver depois quais perguntas os visitantes
+    fazem, mesmo que não cliquem no WhatsApp.
+
+    LIMITAÇÃO IMPORTANTE: o sistema de arquivos do Streamlit Cloud é
+    EFÊMERO — esse CSV pode ser apagado a qualquer reboot/redeploy do
+    app. Isso NÃO é um banco de dados de verdade, é um "melhor esforço"
+    enquanto não há uma integração externa (Google Sheets, banco de
+    dados, etc.). Baixe o arquivo periodicamente se quiser guardar o
+    histórico, ou peça uma integração externa como próximo passo.
+    Nunca deve travar o app se falhar — por isso o try/except silencioso.
+    """
+    try:
+        arquivo_novo = not os.path.exists(LOG_CONVERSAS_PATH)
+        with open(LOG_CONVERSAS_PATH, "a", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            if arquivo_novo:
+                writer.writerow(["timestamp", "pergunta_usuario", "resposta_bot"])
+            writer.writerow([datetime.now().isoformat(timespec="seconds"), pergunta, resposta])
+    except Exception as e:
+        _log_erro_tecnico("log_conversa", f"{type(e).__name__}: {str(e)[:200]}")
+
+
 def converter_para_gemini(messages: list, system_prompt: str) -> list:
     gemini_messages = [
         {"role": "user",  "parts": [{"text": system_prompt}]},
@@ -108,11 +139,29 @@ def converter_para_gemini(messages: list, system_prompt: str) -> list:
     return gemini_messages
 
 
+MENSAGEM_ERRO_GENERICA = (
+    "Tive um probleminha técnico agora. Pode tentar de novo em instantes? "
+    "Se persistir, fala direto com o Rodrigo: "
+    "[📲 WhatsApp](https://wa.me/5511977019335?text=Olá+Rodrigo!+Tive+um+problema+no+chat+do+site.)"
+)
+
+
+def _log_erro_tecnico(contexto: str, detalhe: str) -> None:
+    """
+    Erros técnicos (status HTTP, timeouts, exceções) NÃO devem aparecer
+    crus pro usuário final numa conversa de vendas — isso quebra a
+    experiência. Registramos no log do Streamlit Cloud (visível em
+    Manage app → logs) e devolvemos uma mensagem genérica e amigável.
+    """
+    print(f"[ALOSA][ERRO] {contexto}: {detalhe}")
+
+
 def perguntar_ia(messages: list, system_prompt: str) -> str:
     api_key = st.secrets.get("GEMINI_API_KEY")
 
     if not api_key:
-        return "⚠️ Chave de API não configurada. Adicione GEMINI_API_KEY nos secrets do Streamlit."
+        _log_erro_tecnico("config", "GEMINI_API_KEY ausente nos secrets")
+        return MENSAGEM_ERRO_GENERICA
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
@@ -139,7 +188,8 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
                 try:
                     return data["candidates"][0]["content"]["parts"][0]["text"]
                 except (KeyError, IndexError) as e:
-                    return f"⚠️ Resposta inesperada da API. Detalhe: {str(e)}"
+                    _log_erro_tecnico("resposta_inesperada", f"{e} | payload: {str(data)[:300]}")
+                    return MENSAGEM_ERRO_GENERICA
 
             status = r.status_code
 
@@ -149,9 +199,13 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
                 if tentativa < MAX_TENTATIVAS:
                     time.sleep(2 ** tentativa)  # backoff: 2s, 4s, 8s...
                     continue
+                _log_erro_tecnico("http_retry_esgotado", f"status={status}")
                 if status == 429:
-                    return "🚦 Limite de requisições atingido. Aguarde alguns segundos e tente novamente."
-                return f"❌ Erro HTTP {status} após {MAX_TENTATIVAS} tentativas."
+                    return (
+                        "Muita gente conversando comigo agora 🙂 tenta de novo em "
+                        "alguns segundos, por favor."
+                    )
+                return MENSAGEM_ERRO_GENERICA
 
             # Erros que não valem retry (401/403/400 etc.)
             try:
@@ -160,22 +214,25 @@ def perguntar_ia(messages: list, system_prompt: str) -> str:
             except Exception:
                 msg_erro = r.text[:300]
 
-            if status in (401, 403):
-                return "🔑 Chave de API inválida ou sem permissão. Verifique o GEMINI_API_KEY nos secrets."
-            return f"❌ Erro HTTP {status}: {msg_erro}"
+            _log_erro_tecnico("http_sem_retry", f"status={status} | {msg_erro}")
+            return MENSAGEM_ERRO_GENERICA
 
         except requests.exceptions.Timeout:
             ultimo_erro = "timeout"
             if tentativa < MAX_TENTATIVAS:
                 time.sleep(2 ** tentativa)
                 continue
-            return "⏱️ A requisição demorou demais. Tente novamente em instantes."
+            _log_erro_tecnico("timeout_esgotado", f"{TIMEOUT_SEGUNDOS}s x {MAX_TENTATIVAS} tentativas")
+            return MENSAGEM_ERRO_GENERICA
         except requests.exceptions.ConnectionError as e:
-            return f"🔌 Erro de conexão: {str(e)[:300]}"
+            _log_erro_tecnico("conexao", str(e)[:300])
+            return MENSAGEM_ERRO_GENERICA
         except Exception as e:
-            return f"❌ Erro inesperado: {type(e).__name__}: {str(e)[:300]}"
+            _log_erro_tecnico("excecao_inesperada", f"{type(e).__name__}: {str(e)[:300]}")
+            return MENSAGEM_ERRO_GENERICA
 
-    return f"❌ Falha após múltiplas tentativas ({ultimo_erro})."
+    _log_erro_tecnico("falha_final", str(ultimo_erro))
+    return MENSAGEM_ERRO_GENERICA
 
 
 def exibir_com_efeito_digitacao(container, texto_html: str, tipo: str):
@@ -323,11 +380,14 @@ if "system_prompt" not in st.session_state:
 chat_container = st.container()
 
 with chat_container:
-    for msg in st.session_state.messages:
+    # Limita quantas bolhas são renderizadas de uma vez (perf em sessões
+    # longas) — a API já usa um limite separado e menor (MAX_HISTORICO).
+    mensagens_para_exibir = st.session_state.messages[-MAX_HISTORICO_EXIBICAO:]
+    for msg in mensagens_para_exibir:
         tipo = "user" if msg["role"] == "user" else "bot"
         # Mensagens do usuário SEMPRE escapadas antes de virar HTML (evita XSS).
         # Mensagens do bot já passaram por blindar_resposta() antes de serem salvas.
-        conteudo = markdown_para_html(msg["content"], escapar=(tipo == "user"))
+        conteudo = markdown_para_html(msg["content"])
         st.markdown(f'<div class="bubble {tipo}">{conteudo}</div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------
@@ -338,7 +398,7 @@ if prompt := st.chat_input("Como posso ajudar em seu projeto de dados?"):
     # 1. Adiciona e exibe mensagem do usuário imediatamente (escapada)
     st.session_state.messages.append({"role": "user", "content": prompt})
     with chat_container:
-        conteudo_user = markdown_para_html(prompt, escapar=True)
+        conteudo_user = markdown_para_html(prompt)
         st.markdown(f'<div class="bubble user">{conteudo_user}</div>', unsafe_allow_html=True)
 
     # 2. Chama a IA
@@ -353,6 +413,10 @@ if prompt := st.chat_input("Como posso ajudar em seu projeto de dados?"):
             m["content"] for m in st.session_state.messages[-6:] if m["role"] == "user"
         ]
         resposta = blindar_resposta(resposta_bruta, historico_usuario=mensagens_usuario_recentes)
+
+        # Log leve pra você ver o que os visitantes perguntam (ver limitação
+        # de armazenamento efêmero no docstring de registrar_conversa)
+        registrar_conversa(prompt, resposta)
 
     # 3. Exibe resposta com efeito de digitação (percepção de velocidade)
     st.session_state.messages.append({"role": "assistant", "content": resposta})

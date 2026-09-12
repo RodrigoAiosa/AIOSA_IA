@@ -21,6 +21,7 @@ O que este teste valida:
 """
 
 import os
+import sys
 import json
 import time
 from datetime import datetime
@@ -170,11 +171,12 @@ def perguntar_gemini(api_key: str, system_prompt: str, pergunta: str) -> str:
         return f"[RESPOSTA INESPERADA] {json.dumps(data)[:300]}"
 
 
-def rodar_testes():
+def rodar_testes() -> int:
+    """Retorna código de saída: 0 = tudo passou, 1 = falha (útil para CI)."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print("ERRO: defina a variável de ambiente GEMINI_API_KEY antes de rodar.")
-        return
+        return 1
 
     system_prompt = carregar_system_prompt()
 
@@ -257,6 +259,10 @@ def rodar_testes():
         f"Relatório salvo em {OUTPUT_PATH}"
     )
 
+    # Para CI: falha (exit code 1) se a rede de segurança não conseguiu
+    # garantir 100% de conformidade no que o usuário realmente vê.
+    return 0 if passou_final == total else 1
+
 
 if __name__ == "__main__":
-    rodar_testes()
+    sys.exit(rodar_testes())
