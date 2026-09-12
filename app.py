@@ -7,6 +7,7 @@ import html
 import time
 import csv
 from datetime import datetime
+from urllib.parse import quote
 
 from seguranca import blindar_resposta
 
@@ -27,6 +28,8 @@ MAX_OUTPUT_TOKENS = 550     # antes: 380 estava cortando respostas no meio de li
 MAX_TENTATIVAS = 3          # retries em caso de 429/5xx
 TIMEOUT_SEGUNDOS = 30
 LOG_CONVERSAS_PATH = "conversas_log.csv"
+NUMERO_WHATSAPP_RODRIGO = "5511977019335"
+LIMITE_CARACTERES_TRANSCRICAO = 1500  # texto bruto; a URL final fica maior após codificar
 
 # ---------------------------------------------------
 # FUNÇÕES UTILITÁRIAS
@@ -118,6 +121,66 @@ def registrar_conversa(pergunta: str, resposta: str) -> None:
             writer.writerow([datetime.now().isoformat(timespec="seconds"), pergunta, resposta])
     except Exception as e:
         _log_erro_tecnico("log_conversa", f"{type(e).__name__}: {str(e)[:200]}")
+
+
+def _limpar_markdown_para_texto_puro(texto: str) -> str:
+    """Remove formatação Markdown (links, negrito, itálico) pra ficar
+    legível como texto simples dentro da mensagem do WhatsApp."""
+    texto = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', texto)  # [texto](url) → texto
+    texto = texto.replace("**", "").replace("*", "")
+    return texto.strip()
+
+
+def montar_transcricao_conversa(mensagens: list, limite: int = LIMITE_CARACTERES_TRANSCRICAO) -> str:
+    """
+    Monta o histórico da conversa como texto simples, mais recente por
+    último. Se ficar maior que `limite` caracteres, corta do INÍCIO
+    (mantém as mensagens mais recentes, que são as mais relevantes pro
+    Rodrigo ao assumir a conversa).
+    """
+    linhas = []
+    for m in mensagens:
+        remetente = "Cliente" if m["role"] == "user" else "Alosa"
+        texto_limpo = _limpar_markdown_para_texto_puro(m["content"])
+        if texto_limpo:
+            linhas.append(f"{remetente}: {texto_limpo}")
+
+    transcricao = "\n".join(linhas)
+    if len(transcricao) > limite:
+        transcricao = "(início da conversa omitido)\n" + transcricao[-limite:]
+    return transcricao
+
+
+def gerar_link_whatsapp_com_historico(mensagens: list) -> str:
+    """Gera o link wa.me com o histórico da conversa já preenchido na
+    mensagem, pra o Rodrigo ver o contexto assim que abrir o WhatsApp."""
+    transcricao = montar_transcricao_conversa(mensagens)
+    texto_final = (
+        "Olá Rodrigo! Vim pelo Alosa (site), segue o histórico da nossa "
+        f"conversa:\n\n{transcricao}"
+    )
+    return f"https://wa.me/{NUMERO_WHATSAPP_RODRIGO}?text={quote(texto_final)}"
+
+
+def inserir_historico_no_link_whatsapp(resposta: str, mensagens: list) -> str:
+    """
+    Sempre que a resposta final contiver um link wa.me (venha do modelo
+    ou dos textos padrão de seguranca.py), troca pela versão com o
+    histórico da conversa embutido — sem precisar que o modelo saiba
+    gerar esse link sozinho.
+    """
+    if f"wa.me/{NUMERO_WHATSAPP_RODRIGO}" not in resposta:
+        return resposta
+    try:
+        novo_link = gerar_link_whatsapp_com_historico(mensagens)
+    except Exception as e:
+        _log_erro_tecnico("gerar_link_whatsapp_historico", f"{type(e).__name__}: {str(e)[:200]}")
+        return resposta  # se der erro, mantém o link genérico em vez de quebrar a resposta
+    return re.sub(
+        rf'https://wa\.me/{NUMERO_WHATSAPP_RODRIGO}[^\s\)]*',
+        novo_link,
+        resposta
+    )
 
 
 def converter_para_gemini(messages: list, system_prompt: str) -> list:
@@ -413,6 +476,11 @@ if prompt := st.chat_input("Como posso ajudar em seu projeto de dados?"):
             m["content"] for m in st.session_state.messages[-6:] if m["role"] == "user"
         ]
         resposta = blindar_resposta(resposta_bruta, historico_usuario=mensagens_usuario_recentes)
+
+        # Enriquece qualquer link de WhatsApp na resposta com o histórico
+        # da conversa (texto pré-preenchido) — inclui a mensagem atual do
+        # usuário porque ela já foi adicionada a session_state.messages acima.
+        resposta = inserir_historico_no_link_whatsapp(resposta, st.session_state.messages)
 
         # Log leve pra você ver o que os visitantes perguntam (ver limitação
         # de armazenamento efêmero no docstring de registrar_conversa)
