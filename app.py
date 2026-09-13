@@ -98,6 +98,19 @@ def limitar_historico(messages: list) -> list:
     return messages
 
 
+def _sanitizar_campo_csv(valor: str) -> str:
+    """
+    Mitigação de CSV/Formula Injection (OWASP): se o campo começar com
+    =, +, -, @, TAB ou CR, esses caracteres podem ser interpretados como
+    início de fórmula pelo Excel/Google Sheets ao abrir o arquivo,
+    permitindo execução de comando (ex: =cmd|'/c calc'!A0). Prefixamos
+    com um apóstrofo pra neutralizar sem alterar o conteúdo visível.
+    """
+    if valor and valor[0] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + valor
+    return valor
+
+
 def registrar_conversa(pergunta: str, resposta: str) -> None:
     """
     Log leve de conversas (mini "captura de lead"): grava cada troca num
@@ -113,12 +126,14 @@ def registrar_conversa(pergunta: str, resposta: str) -> None:
     Nunca deve travar o app se falhar — por isso o try/except silencioso.
     """
     try:
+        pergunta_segura = _sanitizar_campo_csv(pergunta)
+        resposta_segura = _sanitizar_campo_csv(resposta)
         arquivo_novo = not os.path.exists(LOG_CONVERSAS_PATH)
         with open(LOG_CONVERSAS_PATH, "a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             if arquivo_novo:
                 writer.writerow(["timestamp", "pergunta_usuario", "resposta_bot"])
-            writer.writerow([datetime.now().isoformat(timespec="seconds"), pergunta, resposta])
+            writer.writerow([datetime.now().isoformat(timespec="seconds"), pergunta_segura, resposta_segura])
     except Exception as e:
         _log_erro_tecnico("log_conversa", f"{type(e).__name__}: {str(e)[:200]}")
 

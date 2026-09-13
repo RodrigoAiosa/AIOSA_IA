@@ -32,7 +32,7 @@ TERMOS_PROIBIDOS = [
 # Padrão que indica que um preço/valor numérico foi informado
 PADRAO_PRECO = re.compile(
     r"(r\$\s?\d|\bpre[cç]o\b.{0,15}\d|\bvalor\b.{0,15}\d|\d+\s?(reais|mil)\b"
-    r"|\d{2,}\s?x\s?de|a partir de\s?r\$)",
+    r"|\d{2,}\s?x\s?de|a partir de\s?r\$|\breais\b|\br\$)",
     re.IGNORECASE,
 )
 
@@ -74,7 +74,31 @@ def contem_preco(texto: str) -> bool:
 
 def termos_externos_encontrados(texto: str) -> list:
     texto_lower = texto.lower()
-    return [t for t in TERMOS_PROIBIDOS if t in texto_lower]
+    encontrados = [t for t in TERMOS_PROIBIDOS if t in texto_lower]
+    if encontrados:
+        return encontrados
+
+    # Camada 2: cola espaços entre letras isoladas — pega bypass tipo
+    # "k a g g l e" → "kaggle" sem afetar frases normais.
+    texto_colado = re.sub(r'(?<=\b\w)\s+(?=\w\b)', '', texto_lower)
+    if texto_colado != texto_lower:
+        encontrados = [t for t in TERMOS_PROIBIDOS if t in texto_colado]
+        if encontrados:
+            return encontrados
+
+    # Camada 3 (fallback final): remove TODOS os espaços do texto e
+    # verifica de novo. Pega bypass com quebra assimétrica tipo
+    # "Kaggl e" ou "You Tube", que a camada 2 não cobre (só junta
+    # letras isoladas). Pequeno risco de falso positivo em textos muito
+    # longos por coincidência de junção de palavras, mas o custo de um
+    # falso positivo aqui é baixo (só redireciona pros links oficiais).
+    texto_sem_espacos = re.sub(r'\s+', '', texto_lower)
+    if texto_sem_espacos != texto_lower:
+        encontrados = [t for t in TERMOS_PROIBIDOS if t in texto_sem_espacos]
+        if encontrados:
+            return encontrados
+
+    return []
 
 
 def contem_link_oficial(texto: str) -> bool:
