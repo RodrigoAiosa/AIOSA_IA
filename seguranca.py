@@ -20,7 +20,7 @@ LINKS_PERMITIDOS = [
     "ai-bidatagenerator.streamlit.app",
     "wa.me/5511977019335",
     "rodrigoaiosa@gmail.com",
-    "github.com/rodrigoaiosa/aiosa_ia/blob/main/_rodrigo_aiosa_cv",
+    "github.com/rodrigoaiosa/aiosa_ia",
 ]
 
 # Termos de fontes externas comuns que nunca podem aparecer numa resposta
