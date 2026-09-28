@@ -20,6 +20,7 @@ LINKS_PERMITIDOS = [
     "ai-bidatagenerator.streamlit.app",
     "wa.me/5511977019335",
     "rodrigoaiosa@gmail.com",
+    "github.com/rodrigoaiosa/aiosa_ia/blob/main/_rodrigo_aiosa_cv",
 ]
 
 # Termos de fontes externas comuns que nunca podem aparecer numa resposta
@@ -72,16 +73,32 @@ def contem_preco(texto: str) -> bool:
     return bool(PADRAO_PRECO.search(texto.lower()))
 
 
+def _remover_links_permitidos(texto_lower: str) -> str:
+    """
+    Remove do texto qualquer trecho que corresponda a um link OFICIAL
+    permitido antes de procurar termos proibidos. Necessário porque
+    alguns links oficiais (ex: o currículo do Rodrigo, hospedado no
+    GitHub) contêm substrings que também estão em TERMOS_PROIBIDOS
+    (ex: "github.com/") — sem isso, a própria resposta legítima seria
+    barrada pela rede de segurança.
+    """
+    resultado = texto_lower
+    for link in LINKS_PERMITIDOS:
+        resultado = resultado.replace(link.lower(), "")
+    return resultado
+
+
 def termos_externos_encontrados(texto: str) -> list:
     texto_lower = texto.lower()
-    encontrados = [t for t in TERMOS_PROIBIDOS if t in texto_lower]
+    texto_lower_sem_permitidos = _remover_links_permitidos(texto_lower)
+    encontrados = [t for t in TERMOS_PROIBIDOS if t in texto_lower_sem_permitidos]
     if encontrados:
         return encontrados
 
     # Camada 2: cola espaços entre letras isoladas — pega bypass tipo
     # "k a g g l e" → "kaggle" sem afetar frases normais.
-    texto_colado = re.sub(r'(?<=\b\w)\s+(?=\w\b)', '', texto_lower)
-    if texto_colado != texto_lower:
+    texto_colado = re.sub(r'(?<=\b\w)\s+(?=\w\b)', '', texto_lower_sem_permitidos)
+    if texto_colado != texto_lower_sem_permitidos:
         encontrados = [t for t in TERMOS_PROIBIDOS if t in texto_colado]
         if encontrados:
             return encontrados
@@ -92,8 +109,8 @@ def termos_externos_encontrados(texto: str) -> list:
     # letras isoladas). Pequeno risco de falso positivo em textos muito
     # longos por coincidência de junção de palavras, mas o custo de um
     # falso positivo aqui é baixo (só redireciona pros links oficiais).
-    texto_sem_espacos = re.sub(r'\s+', '', texto_lower)
-    if texto_sem_espacos != texto_lower:
+    texto_sem_espacos = re.sub(r'\s+', '', texto_lower_sem_permitidos)
+    if texto_sem_espacos != texto_lower_sem_permitidos:
         encontrados = [t for t in TERMOS_PROIBIDOS if t in texto_sem_espacos]
         if encontrados:
             return encontrados
