@@ -61,11 +61,15 @@ PADRAO_PEDIDO_GERADOR_DADOS = re.compile(
 
 LINK_GERADOR_DADOS = "https://ai-bidatagenerator.streamlit.app/"
 
+BLOCO_LINK_GERADOR_DADOS = (
+    "📊 **Gerador de Dados para Power BI**\n"
+    f"[Acessar o gerador]({LINK_GERADOR_DADOS})"
+)
+
 RESPOSTA_PADRAO_GERADOR_DADOS = (
     "Para gerar dados fictícios/de teste para usar no Power BI, use a "
     "ferramenta oficial do Rodrigo Aiosa:\n\n"
-    "📊 **Gerador de Dados para Power BI**\n"
-    f"[Acessar o gerador]({LINK_GERADOR_DADOS})"
+    f"{BLOCO_LINK_GERADOR_DADOS}"
 )
 
 # Gatilho: usuário perguntando sobre o currículo/CV do Rodrigo Aiosa
@@ -147,38 +151,93 @@ def pedido_gerador_dados(historico_usuario) -> bool:
     lista de strings (mensagens do usuário na conversa). Checa todas,
     porque o pedido pode ter sido feito 1-2 turnos atrás (ex: bot pergunta
     "qual você quer?" e o usuário só responde "sim, recomenda aí").
+    Aceita também `None` (sem histórico disponível) sem quebrar.
     """
+    if not historico_usuario:
+        return False
     if isinstance(historico_usuario, str):
         historico_usuario = [historico_usuario]
     texto_completo = " ".join(historico_usuario).lower()
     return bool(PADRAO_PEDIDO_GERADOR_DADOS.search(texto_completo))
 
 
+def _resposta_menciona_gerador_dados(resposta: str) -> bool:
+    """
+    Mesma lógica de `_resposta_menciona_curriculo`, mas para o gerador de
+    dados: detecta se a PRÓPRIA RESPOSTA do modelo já entrou no assunto
+    (ex: o modelo sugere a ferramenta espontaneamente dentro de uma
+    resposta sobre "como praticar Power BI", sem que o USUÁRIO tenha
+    usado nenhuma das palavras-gatilho de `PADRAO_PEDIDO_GERADOR_DADOS`).
+    Sem essa checagem, uma resposta cortada no meio desse link passaria
+    batido pela garantia sempre que o pedido, em si, não batesse com o
+    padrão — foi exatamente o bug já corrigido para o currículo, só que
+    ainda não generalizado para este caso.
+    """
+    texto_lower = resposta.lower()
+    if PADRAO_PEDIDO_GERADOR_DADOS.search(texto_lower):
+        return True
+    return "gerador de dados" in texto_lower or "ai-bidatagenerator" in texto_lower
+
+
+def _remover_link_gerador_dados_truncado(resposta: str) -> str:
+    """
+    Mesma lógica de `_remover_link_curriculo_truncado`: limpa o fragmento
+    de markdown quebrado (link cortado no meio por limite de tokens) e o
+    título duplicado do bloco, antes de anexar o link correto e completo.
+    """
+    resultado = re.sub(r'\[[^\]\[]*\]\([^\)]*$', '', resposta)
+    resultado = re.sub(r'\[[^\]\[]*$', '', resultado)
+    resultado = resultado.rstrip()
+
+    linhas = resultado.split("\n")
+    while linhas:
+        ultima = linhas[-1].strip().lower()
+        if not ultima:
+            linhas.pop()
+            continue
+        eh_titulo_do_bloco = (
+            ("gerador de dados" in ultima or "gerar dados" in ultima)
+            and ("power bi" in ultima or "ferramenta" in ultima)
+        )
+        if eh_titulo_do_bloco:
+            linhas.pop()
+            continue
+        break
+    return "\n".join(linhas).rstrip()
+
+
 def garantir_link_gerador_dados(historico_usuario, resposta: str) -> str:
     """
     Garantia por código (não só por prompt): se o usuário pediu, em
-    qualquer ponto recente da conversa, uma ferramenta pra gerar dados de
-    Power BI, o link completo TEM que aparecer na resposta atual quando
-    fizer sentido (ex: resposta de confirmação tipo "sim, pode recomendar").
-    Se o modelo esqueceu, cortou a resposta no meio, ou gerou o link
-    quebrado (truncado por limite de tokens), substitui pela resposta
-    padrão já pronta e correta.
+    qualquer ponto recente da conversa, OU a própria resposta do modelo já
+    entrou no assunto do gerador de dados, o link completo TEM que
+    aparecer na resposta atual. Se o modelo esqueceu, ou cortou a resposta
+    no meio do link (limite de tokens), remove o fragmento quebrado e
+    anexa o bloco do link correto e completo — preservando o restante do
+    texto já gerado, em vez de descartar a resposta inteira.
     """
-    if not pedido_gerador_dados(historico_usuario):
+    if not (pedido_gerador_dados(historico_usuario) or _resposta_menciona_gerador_dados(resposta)):
         return resposta
 
     if LINK_GERADOR_DADOS in resposta:
         return resposta  # o modelo já gerou certo e completo
 
-    return RESPOSTA_PADRAO_GERADOR_DADOS
+    resposta_sem_fragmento = _remover_link_gerador_dados_truncado(resposta)
+    if not resposta_sem_fragmento:
+        return RESPOSTA_PADRAO_GERADOR_DADOS
+
+    return f"{resposta_sem_fragmento}\n\n{BLOCO_LINK_GERADOR_DADOS}"
 
 
 def pedido_curriculo(historico_usuario) -> bool:
     """
     Mesma lógica de `pedido_gerador_dados`, mas para pedidos sobre o
     currículo/CV do Rodrigo Aiosa. Checa a mensagem atual e o histórico
-    recente, porque o pedido pode ter sido feito 1-2 turnos atrás.
+    recente, porque o pedido pode ter sido feito 1-2 turnos atrás. Aceita
+    também `None` (sem histórico disponível) sem quebrar.
     """
+    if not historico_usuario:
+        return False
     if isinstance(historico_usuario, str):
         historico_usuario = [historico_usuario]
     texto_completo = " ".join(historico_usuario).lower()
@@ -287,9 +346,13 @@ def blindar_resposta(resposta: str, historico_usuario=None) -> str:
     if termos_externos_encontrados(resposta):
         return RESPOSTA_PADRAO_FONTE_EXTERNA
 
-    if historico_usuario:
-        resposta = garantir_link_gerador_dados(historico_usuario, resposta)
-        resposta = garantir_link_curriculo(historico_usuario, resposta)
+    # Nota: NÃO usamos "if historico_usuario:" aqui de propósito — uma
+    # lista vazia é "falsy" em Python, e isso bloquearia as checagens
+    # baseadas no CONTEÚDO DA RESPOSTA (_resposta_menciona_*), que devem
+    # funcionar mesmo sem histórico de usuário disponível. As funções
+    # abaixo já tratam historico_usuario=None/[] com segurança.
+    resposta = garantir_link_gerador_dados(historico_usuario, resposta)
+    resposta = garantir_link_curriculo(historico_usuario, resposta)
 
     return resposta
 
