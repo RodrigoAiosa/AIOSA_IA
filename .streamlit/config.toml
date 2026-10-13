@@ -1,0 +1,6 @@
+[client]
+# Reduz a barra de ferramentas do Streamlit (Deploy, menu) mesmo fora do Cloud.
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false

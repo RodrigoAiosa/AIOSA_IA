@@ -10,6 +10,7 @@ from datetime import datetime
 from urllib.parse import quote
 
 from seguranca import blindar_resposta
+from esconder_selo import esconder_selo_streamlit
 
 # ---------------------------------------------------
 # CONFIGURAÇÃO DA PÁGINA
@@ -346,6 +347,41 @@ st.markdown(f"""
     header, footer, #MainMenu {{visibility: hidden;}}
     .stApp {{ background-color: #ECE5DD; }}
 
+    /* Controles do Streamlit / Streamlit Cloud (Fork, GitHub, Share, favorito,
+       editar, menu, "Manage app", selo "Hosted with Streamlit" e foto do dono).
+       Reforçado em runtime por esconder_selo.py, pois o Cloud injeta esses itens
+       fora da área do app, com nomes de classe que mudam. */
+    [data-testid="stToolbar"],
+    [data-testid="stToolbarActions"],
+    [data-testid="stAppDeployButton"],
+    [data-testid="stMainMenu"],
+    #MainMenu,
+    .stAppDeployButton,
+    .stDeployButton,
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],
+    [data-testid="manage-app-button"],
+    [data-testid="stManageAppButton"],
+    [class*="viewerBadge"],
+    [class*="_terminalButton_"],
+    [class*="_container_gzau3_"],
+    [class*="profileContainer"],
+    [class*="profilePreview"],
+    [class*="hostedWith"],
+    a[href*="streamlit.io/cloud"],
+    div:has(> a[href*="streamlit.io/cloud"]) {{
+        display: none !important;
+        visibility: hidden !important;
+    }}
+    /* O iframe de 1px que só roda o script de esconder_selo.py fica fora do layout. */
+    .stElementContainer:has(> iframe[data-testid="stIFrame"]),
+    .stElementContainer:has(> iframe[title="st.iframe"]),
+    .element-container:has(> iframe) {{
+        position: absolute !important; width: 1px !important; height: 1px !important;
+        margin: 0 !important; padding: 0 !important; overflow: hidden !important;
+        opacity: 0 !important; pointer-events: none !important;
+    }}
+
     .wa-header {{
         background-color: #075E54;
         padding: 8px 16px;
@@ -442,6 +478,10 @@ window.addEventListener('load', focusChatInput);
 </div>
 <div class="chat-space"></div>
 """, unsafe_allow_html=True)
+
+# Esconde "Manage app", selo "Hosted with Streamlit", foto do dono etc. Fica logo
+# após o header (posição estável) pra o iframe não ser recriado a cada mensagem.
+esconder_selo_streamlit()
 
 # ---------------------------------------------------
 # INICIALIZAÇÃO DO ESTADO
