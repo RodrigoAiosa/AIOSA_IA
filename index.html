@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Alosa — Assistente do Rodrigo Aiosa</title>
+  <meta name="description" content="Converse com o Alosa, assistente do Rodrigo Aiosa: Power BI, Python, SQL, Excel/VBA, treinamentos e mentorias.">
+  <meta name="theme-color" content="#075E54">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Alosa — Assistente do Rodrigo Aiosa">
+  <meta property="og:description" content="Tire dúvidas sobre dados, Power BI, Python e SQL e conheça os treinamentos do Rodrigo Aiosa.">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%AC%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --wa-green: #075E54;
+      --wa-bg: #ECE5DD;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--wa-bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* O app ocupa 100% da tela. 100dvh evita o "pulo" da barra do navegador no celular. */
+    #app {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      border: 0;
+      display: block;
+      background: var(--wa-bg);
+    }
+
+    /* Tela de carregamento: some assim que o app responde. */
+    #loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: var(--wa-bg);
+      color: var(--wa-green);
+      font-size: 15px;
+      z-index: 2;
+      transition: opacity .3s ease;
+    }
+    #loading.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 4px solid rgba(7, 94, 84, .2);
+      border-top-color: var(--wa-green);
+      border-radius: 50%;
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Aviso se o app demorar (o Streamlit Cloud "dorme" após inatividade). */
+    #slow { display: none; text-align: center; max-width: 320px; line-height: 1.5; padding: 0 16px; }
+    #slow a { color: var(--wa-green); font-weight: 700; }
+    #loading.slow #slow { display: block; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .spinner { animation-duration: 3s; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loading" role="status" aria-live="polite">
+    <div class="spinner" aria-hidden="true"></div>
+    <div>Carregando o Alosa…</div>
+    <div id="slow">
+      Está demorando um pouco mais que o normal — o app pode estar acordando.<br>
+      Se preferir, <a id="fallback" href="#" target="_blank" rel="noopener">abra em uma nova aba</a>.
+    </div>
+  </div>
+
+  <!--
+    ?embed=true  → o Streamlit esconde a barra superior, o menu e o rodapé.
+    Para trocar de app, altere só a constante APP_URL no script abaixo.
+  -->
+  <iframe
+    id="app"
+    title="Alosa — Assistente do Rodrigo Aiosa"
+    allow="clipboard-write; clipboard-read"
+    referrerpolicy="strict-origin-when-cross-origin"
+  ></iframe>
+
+  <script>
+    (function () {
+      var APP_URL = "https://rodrigoaiosa.streamlit.app/Alosa_IA";
+
+      var frame = document.getElementById("app");
+      var loading = document.getElementById("loading");
+      var fallback = document.getElementById("fallback");
+
+      // Mantém parâmetros da URL (ex.: ?utm_source=...) e força o modo embed.
+      var url = new URL(APP_URL);
+      new URLSearchParams(window.location.search).forEach(function (v, k) {
+        url.searchParams.set(k, v);
+      });
+      url.searchParams.set("embed", "true");
+
+      fallback.href = APP_URL;
+      frame.src = url.toString();
+
+      // Se demorar, oferece abrir em nova aba (app dormindo ou rede lenta).
+      var slowTimer = setTimeout(function () {
+        loading.classList.add("slow");
+      }, 8000);
+
+      frame.addEventListener("load", function () {
+        clearTimeout(slowTimer);
+        loading.classList.add("hidden");
+        setTimeout(function () { loading.style.display = "none"; }, 350);
+      });
+    })();
+  </script>
+
+  <noscript>
+    <p style="padding:24px;text-align:center">
+      Ative o JavaScript ou
+      <a href="https://rodrigoaiosa.streamlit.app/Alosa_IA" target="_blank" rel="noopener">abra o Alosa diretamente</a>.
+    </p>
+  </noscript>
+</body>
+</html>

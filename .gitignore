@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 conversas_log.csv
 relatorio_testes_alosa_automatico.md
+dist/

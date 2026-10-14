@@ -78,6 +78,10 @@ streamlit run app.py
 
 O app roda em produção no **Streamlit Community Cloud**, apontando para este repositório (branch `main`). A `GEMINI_API_KEY` é configurada nos *Secrets* do app no painel do Streamlit Cloud — nunca é commitada no código.
 
+### Página no Vercel (opcional)
+
+`index.html` abre o app do Streamlit em tela cheia (`?embed=true`, sem barra, menu ou rodapé do Streamlit) e é publicado no Vercel pelo projeto `ia_aiosa`. O `vercel.json` publica **somente** o `index.html` (`dist/`), então `app.py`, `instrucoes.txt` e demais arquivos não ficam expostos no domínio do Vercel. Para apontar para outro app, altere `APP_URL` no `<script>` do `index.html`.
+
 > ⚠️ O sistema de arquivos do Streamlit Cloud é efêmero: `conversas_log.csv` pode ser apagado a cada reboot/redeploy. Não é um banco de dados — é um log de melhor esforço.
 
 ---
