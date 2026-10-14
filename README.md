@@ -80,7 +80,7 @@ O app roda em produção no **Streamlit Community Cloud**, apontando para este r
 
 ### Página no Vercel (opcional)
 
-`index.html` é a página inicial (landing page estática) do Rodrigo, com serviços, portfólio, currículo, WhatsApp e botão para o Alosa. É publicada no Vercel pelo projeto `aiosa_ia`. O `vercel.json` publica **somente** o `index.html` (`dist/`), então `app.py`, `instrucoes.txt` e demais arquivos não ficam expostos no domínio do Vercel.
+`index.html` abre o app do Streamlit em tela cheia (`?embed=true`, sem barra, menu ou rodapé do Streamlit) e é publicado no Vercel pelo projeto `ia_aiosa`. O `vercel.json` publica **somente** o `index.html` (`dist/`), então `app.py`, `instrucoes.txt` e demais arquivos não ficam expostos no domínio do Vercel. Para apontar para outro app, altere `APP_URL` no `<script>` do `index.html`.
 
 > ⚠️ O sistema de arquivos do Streamlit Cloud é efêmero: `conversas_log.csv` pode ser apagado a cada reboot/redeploy. Não é um banco de dados — é um log de melhor esforço.
 
