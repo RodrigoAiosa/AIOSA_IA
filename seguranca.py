@@ -16,6 +16,7 @@ import re
 # ---------------------------------------------------------------
 LINKS_PERMITIDOS = [
     "rodrigoaiosa.streamlit.app",
+    "rodrigoaiosa.vercel.app",
     "rodrigoaiosa.github.io/promocao_curso_online",
     "ai-bidatagenerator.streamlit.app",
     "wa.me/5511977019335",
@@ -47,7 +48,7 @@ RESPOSTA_PADRAO_PRECO = (
 RESPOSTA_PADRAO_FONTE_EXTERNA = (
     "Trabalho só com o conteúdo oficial do Rodrigo Aiosa. Você encontra tudo aqui:\n\n"
     "🏢 [Treinamento para Empresas](https://rodrigoaiosa.streamlit.app/treinamento_empresa)\n"
-    "📊 [Projetos de Power BI](https://rodrigoaiosa.streamlit.app/projetos_powerbi)\n"
+    "📊 [Projetos de Power BI](https://rodrigoaiosa.vercel.app/#powerbi)\n"
     "🎓 [Curso Online — Promoção](https://rodrigoaiosa.github.io/promocao_curso_online/)"
 )
 

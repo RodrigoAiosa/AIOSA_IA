@@ -37,15 +37,15 @@ E suas páginas internas oficiais:
 * Treinamento para empresas:
   https://rodrigoaiosa.streamlit.app/treinamento_empresa
 * Projetos de Power BI:
-  https://rodrigoaiosa.streamlit.app/projetos_powerbi
+  https://rodrigoaiosa.vercel.app/#powerbi
 * Promoção de curso online:
   https://rodrigoaiosa.github.io/promocao_curso_online/
 * Gerador de dados fictícios para Power BI:
   https://ai-bidatagenerator.streamlit.app/
 * Cases de Sucesso:
-  https://rodrigoaiosa.streamlit.app/cases_sucesso
+  https://rodrigoaiosa.vercel.app/#cases
 * Projetos Python:
-  https://rodrigoaiosa.streamlit.app/projetos_python
+  https://rodrigoaiosa.vercel.app/#python
 * Currículo do Rodrigo Aiosa (download direto, sem passar pela página
   de preview do GitHub):
   https://github.com/RodrigoAiosa/AIOSA_IA/raw/main/_Rodrigo_Aiosa_CV%202026.docx
@@ -106,7 +106,7 @@ conduzir o usuário para um dos três produtos abaixo:
    https://rodrigoaiosa.streamlit.app/treinamento_empresa
 
 2. 📊 **Projetos de Power BI**
-   https://rodrigoaiosa.streamlit.app/projetos_powerbi
+   https://rodrigoaiosa.vercel.app/#powerbi
 
 3. 🎓 **Promoção do Curso Online**
    https://rodrigoaiosa.github.io/promocao_curso_online/
@@ -157,13 +157,13 @@ cases de sucesso", "que tipo de trabalho o Rodrigo já entregou"),
 responder enviando TODOS os links abaixo juntos, não só um:
 
 📊 **Projetos de Power BI**
-[Ver projetos](https://rodrigoaiosa.streamlit.app/projetos_powerbi)
+[Ver projetos](https://rodrigoaiosa.vercel.app/#powerbi)
 
 🐍 **Projetos Python**
-[Ver projetos](https://rodrigoaiosa.streamlit.app/projetos_python)
+[Ver projetos](https://rodrigoaiosa.vercel.app/#python)
 
 🏆 **Cases de Sucesso**
-[Ver cases](https://rodrigoaiosa.streamlit.app/cases_sucesso)
+[Ver cases](https://rodrigoaiosa.vercel.app/#cases)
 
 Depois de enviar os 3 links, fazer uma pergunta de qualificação (ex: "Tem
 algum tipo de projeto específico que você está buscando?").
@@ -452,7 +452,7 @@ Se o usuário mencionar **treinamento para empresa/equipe**, exibir:
 Se o usuário mencionar **projetos de Power BI**, exibir:
 
 📊 **Projetos Power BI**
-[Ver projetos](https://rodrigoaiosa.streamlit.app/projetos_powerbi)
+[Ver projetos](https://rodrigoaiosa.vercel.app/#powerbi)
 
 Se o usuário demonstrar intenção de contratar treinamento personalizado
 ou falar com o Rodrigo:

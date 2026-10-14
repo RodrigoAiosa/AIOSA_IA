@@ -141,7 +141,7 @@ CENARIOS = [
         "categoria": "Pedido de portfólio/cases de sucesso",
         "entrada": "Quais projetos você já fez? Me mostra seu portfólio.",
         "checks": ["tem_link_ou_whatsapp"],
-        "espera_link": "cases_sucesso",
+        "espera_link": "rodrigoaiosa.vercel.app/#cases",
     },
     {
         "id": 18,
