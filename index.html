@@ -21,6 +21,7 @@
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
+      overflow: hidden;
       height: 100%;
       background: var(--wa-bg);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -29,10 +30,13 @@
     /* O app ocupa 100% da tela. 100dvh evita o "pulo" da barra do navegador no celular. */
     #app {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
       width: 100%;
-      height: 100vh;
-      height: 100dvh;
+      /* O iframe é 56px mais alto que a tela: a faixa "Built with Streamlit / Fullscreen"
+         do modo embed fica no rodapé do iframe, fora da área visível (cortada). */
+      height: calc(100vh + 56px);
+      height: calc(100dvh + 56px);
       border: 0;
       display: block;
       background: var(--wa-bg);
