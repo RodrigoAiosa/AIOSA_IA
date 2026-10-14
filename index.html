@@ -2,136 +2,217 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Alosa — Assistente do Rodrigo Aiosa</title>
-  <meta name="description" content="Converse com o Alosa, assistente do Rodrigo Aiosa: Power BI, Python, SQL, Excel/VBA, treinamentos e mentorias.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rodrigo Aiosa — Power BI, Python, SQL e Excel</title>
+  <meta name="description" content="Treinamentos, mentorias e projetos de Power BI, Python, SQL e Excel/VBA com Rodrigo Aiosa.">
   <meta name="theme-color" content="#075E54">
-
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Alosa — Assistente do Rodrigo Aiosa">
-  <meta property="og:description" content="Tire dúvidas sobre dados, Power BI, Python e SQL e conheça os treinamentos do Rodrigo Aiosa.">
-
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%AC%3C/text%3E%3C/svg%3E">
+  <meta property="og:title" content="Rodrigo Aiosa — Power BI, Python, SQL e Excel">
+  <meta property="og:description" content="Treinamentos, mentorias e projetos de dados. Fale com o Alosa, o assistente do Rodrigo.">
+  <meta property="og:image" content="https://github.com/RodrigoAiosa/AIOSA_IA/raw/main/eu_ia_foto.jpg">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
 
   <style>
     :root {
-      --wa-green: #075E54;
-      --wa-bg: #ECE5DD;
+      --verde: #075E54;
+      --verde-claro: #25D366;
+      --fundo: #f6f8f7;
+      --texto: #1b2a27;
+      --suave: #5b6b67;
+      --card: #ffffff;
+      --borda: #e1e8e6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fundo: #0e1715;
+        --texto: #e8f0ee;
+        --suave: #9db0ab;
+        --card: #16231f;
+        --borda: #243631;
+      }
     }
     * { box-sizing: border-box; }
-    html, body {
+    html { scroll-behavior: smooth; }
+    body {
       margin: 0;
-      height: 100%;
-      background: var(--wa-bg);
+      background: var(--fundo);
+      color: var(--texto);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
     }
+    a { color: inherit; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
 
-    /* O app ocupa 100% da tela. 100dvh evita o "pulo" da barra do navegador no celular. */
-    #app {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100vh;
-      height: 100dvh;
-      border: 0;
-      display: block;
-      background: var(--wa-bg);
-    }
+    header.topo { border-bottom: 1px solid var(--borda); background: var(--card); }
+    .topo .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .marca { font-weight: 800; text-decoration: none; }
+    .topo nav a { margin-left: 18px; font-size: 14px; text-decoration: none; color: var(--suave); }
+    .topo nav a:hover { color: var(--verde); }
+    @media (max-width: 600px) { .topo nav a.opc { display: none; } }
 
-    /* Tela de carregamento: some assim que o app responde. */
-    #loading {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      background: var(--wa-bg);
-      color: var(--wa-green);
-      font-size: 15px;
-      z-index: 2;
-      transition: opacity .3s ease;
-    }
-    #loading.hidden { opacity: 0; pointer-events: none; }
-    .spinner {
-      width: 38px;
-      height: 38px;
-      border: 4px solid rgba(7, 94, 84, .2);
-      border-top-color: var(--wa-green);
-      border-radius: 50%;
-      animation: spin .9s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .hero { padding: 56px 0 40px; }
+    .hero .wrap { display: grid; grid-template-columns: 1.4fr 1fr; gap: 36px; align-items: center; }
+    @media (max-width: 800px) { .hero .wrap { grid-template-columns: 1fr; } .hero img { max-width: 260px; } }
+    .hero h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.15; margin: 0 0 14px; }
+    .hero h1 span { color: var(--verde); }
+    @media (prefers-color-scheme: dark) { .hero h1 span { color: var(--verde-claro); } }
+    .hero p { color: var(--suave); font-size: 18px; margin: 0 0 24px; }
+    .hero img { width: 100%; border-radius: 20px; display: block; margin: 0 auto; border: 1px solid var(--borda); }
 
-    /* Aviso se o app demorar (o Streamlit Cloud "dorme" após inatividade). */
-    #slow { display: none; text-align: center; max-width: 320px; line-height: 1.5; padding: 0 16px; }
-    #slow a { color: var(--wa-green); font-weight: 700; }
-    #loading.slow #slow { display: block; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .spinner { animation-duration: 3s; }
+    .botoes { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn {
+      display: inline-block; padding: 12px 20px; border-radius: 10px; font-weight: 700;
+      text-decoration: none; border: 2px solid var(--verde); font-size: 15px;
     }
+    .btn.primario { background: var(--verde); color: #fff; }
+    .btn.primario:hover { background: #054a42; }
+    .btn.sec { color: var(--verde); }
+    .btn.sec:hover { background: rgba(7, 94, 84, .08); }
+    @media (prefers-color-scheme: dark) { .btn.sec { color: var(--verde-claro); border-color: var(--verde-claro); } }
+
+    section { padding: 40px 0; }
+    h2 { font-size: 26px; margin: 0 0 6px; }
+    .sub { color: var(--suave); margin: 0 0 24px; }
+
+    .grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .card {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 14px;
+      padding: 20px; text-decoration: none; display: block;
+    }
+    a.card:hover { border-color: var(--verde); transform: translateY(-2px); }
+    .card { transition: transform .15s ease, border-color .15s ease; }
+    .card h3 { margin: 0 0 6px; font-size: 18px; }
+    .card p { margin: 0; color: var(--suave); font-size: 15px; }
+    .card .mais { display: inline-block; margin-top: 12px; font-weight: 700; color: var(--verde); font-size: 14px; }
+    @media (prefers-color-scheme: dark) { .card .mais { color: var(--verde-claro); } }
+
+    .chip-lista { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { background: var(--card); border: 1px solid var(--borda); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 600; }
+
+    .chamada {
+      background: var(--verde); color: #fff; border-radius: 18px; padding: 32px; text-align: center;
+    }
+    .chamada h2 { margin-bottom: 8px; }
+    .chamada p { margin: 0 0 20px; opacity: .92; }
+    .chamada .btn { background: #fff; color: var(--verde); border-color: #fff; }
+    .chamada .btn.sec { background: transparent; color: #fff; }
+
+    footer { padding: 28px 0 40px; color: var(--suave); font-size: 14px; text-align: center; }
+    footer a { color: var(--suave); }
+
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
   </style>
 </head>
 <body>
 
-  <div id="loading" role="status" aria-live="polite">
-    <div class="spinner" aria-hidden="true"></div>
-    <div>Carregando o Alosa…</div>
-    <div id="slow">
-      Está demorando um pouco mais que o normal — o app pode estar acordando.<br>
-      Se preferir, <a id="fallback" href="#" target="_blank" rel="noopener">abra em uma nova aba</a>.
+  <header class="topo">
+    <div class="wrap">
+      <a class="marca" href="#">Rodrigo Aiosa</a>
+      <nav>
+        <a class="opc" href="#servicos">Serviços</a>
+        <a class="opc" href="#portfolio">Portfólio</a>
+        <a href="#contato">Contato</a>
+      </nav>
     </div>
-  </div>
+  </header>
 
-  <!--
-    ?embed=true  → o Streamlit esconde a barra superior, o menu e o rodapé.
-    Para trocar de app, altere só a constante APP_URL no script abaixo.
-  -->
-  <iframe
-    id="app"
-    title="Alosa — Assistente do Rodrigo Aiosa"
-    allow="clipboard-write; clipboard-read"
-    referrerpolicy="strict-origin-when-cross-origin"
-  ></iframe>
+  <main>
+    <div class="hero">
+      <div class="wrap">
+        <div>
+          <h1>Transformo dados em decisões com <span>Power BI, Python, SQL e Excel</span></h1>
+          <p>Treinamentos para empresas, mentorias, cursos online e projetos sob medida para você e sua equipe dominarem dados na prática.</p>
+          <div class="botoes">
+            <a class="btn primario" href="https://wa.me/5511977019335?text=Ol%C3%A1+Rodrigo!+Vim+pelo+site+e+quero+saber+mais." target="_blank" rel="noopener">Falar no WhatsApp</a>
+            <a class="btn sec" href="https://rodrigoaiosa.streamlit.app/Alosa_IA" target="_blank" rel="noopener">Conversar com o Alosa (IA)</a>
+          </div>
+        </div>
+        <img src="https://github.com/RodrigoAiosa/AIOSA_IA/raw/main/eu_ia_foto.jpg" alt="Rodrigo Aiosa" width="400" height="400" loading="eager">
+      </div>
+    </div>
 
-  <script>
-    (function () {
-      var APP_URL = "https://aiosaia.streamlit.app/";
+    <section id="servicos">
+      <div class="wrap">
+        <h2>Serviços</h2>
+        <p class="sub">Fale com o Rodrigo para um diagnóstico personalizado do que faz sentido para você.</p>
+        <div class="grade">
+          <a class="card" href="https://rodrigoaiosa.streamlit.app/treinamento_empresa" target="_blank" rel="noopener">
+            <h3>Treinamento para empresas</h3>
+            <p>Capacitação da sua equipe em Power BI, Python, SQL e Excel/VBA.</p>
+            <span class="mais">Ver detalhes →</span>
+          </a>
+          <a class="card" href="https://rodrigoaiosa.streamlit.app/projetos_powerbi" target="_blank" rel="noopener">
+            <h3>Projetos de Power BI</h3>
+            <p>Dashboards e soluções de BI desenhados para o seu negócio.</p>
+            <span class="mais">Ver projetos →</span>
+          </a>
+          <a class="card" href="https://rodrigoaiosa.github.io/promocao_curso_online/" target="_blank" rel="noopener">
+            <h3>Curso online</h3>
+            <p>Aprenda no seu ritmo, do zero à prática.</p>
+            <span class="mais">Ver promoção →</span>
+          </a>
+        </div>
+      </div>
+    </section>
 
-      var frame = document.getElementById("app");
-      var loading = document.getElementById("loading");
-      var fallback = document.getElementById("fallback");
+    <section id="portfolio">
+      <div class="wrap">
+        <h2>Portfólio e ferramentas</h2>
+        <p class="sub">Trabalhos reais e uma ferramenta gratuita para praticar.</p>
+        <div class="grade">
+          <a class="card" href="https://rodrigoaiosa.streamlit.app/cases_sucesso" target="_blank" rel="noopener">
+            <h3>Cases de sucesso</h3>
+            <p>Resultados entregues a clientes.</p>
+            <span class="mais">Ver cases →</span>
+          </a>
+          <a class="card" href="https://rodrigoaiosa.streamlit.app/projetos_python" target="_blank" rel="noopener">
+            <h3>Projetos Python</h3>
+            <p>Automação, análise de dados e IA.</p>
+            <span class="mais">Ver projetos →</span>
+          </a>
+          <a class="card" href="https://ai-bidatagenerator.streamlit.app/" target="_blank" rel="noopener">
+            <h3>Gerador de dados fictícios</h3>
+            <p>Crie bases de dados para treinar no Power BI.</p>
+            <span class="mais">Acessar o gerador →</span>
+          </a>
+          <a class="card" href="https://github.com/RodrigoAiosa/AIOSA_IA/raw/main/_Rodrigo_Aiosa_CV%202026.docx" download>
+            <h3>Currículo</h3>
+            <p>Baixe o currículo completo do Rodrigo Aiosa.</p>
+            <span class="mais">Baixar currículo →</span>
+          </a>
+        </div>
+      </div>
+    </section>
 
-      // Mantém parâmetros da URL (ex.: ?utm_source=...) e força o modo embed.
-      var url = new URL(APP_URL);
-      new URLSearchParams(window.location.search).forEach(function (v, k) {
-        url.searchParams.set(k, v);
-      });
-      url.searchParams.set("embed", "true");
+    <section>
+      <div class="wrap">
+        <h2>Tecnologias</h2>
+        <p class="sub">&nbsp;</p>
+        <div class="chip-lista">
+          <span class="chip">Power BI</span><span class="chip">DAX</span><span class="chip">Python</span>
+          <span class="chip">SQL</span><span class="chip">Excel</span><span class="chip">VBA</span>
+          <span class="chip">Deep Learning</span>
+        </div>
+      </div>
+    </section>
 
-      fallback.href = APP_URL;
-      frame.src = url.toString();
+    <section id="contato">
+      <div class="wrap">
+        <div class="chamada">
+          <h2>Vamos conversar?</h2>
+          <p>Conte seu objetivo e receba um diagnóstico personalizado.</p>
+          <div class="botoes" style="justify-content:center">
+            <a class="btn" href="https://wa.me/5511977019335?text=Ol%C3%A1+Rodrigo!+Vim+pelo+site+e+quero+saber+mais." target="_blank" rel="noopener">WhatsApp</a>
+            <a class="btn sec" href="mailto:rodrigoaiosa@gmail.com">rodrigoaiosa@gmail.com</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-      // Se demorar, oferece abrir em nova aba (app dormindo ou rede lenta).
-      var slowTimer = setTimeout(function () {
-        loading.classList.add("slow");
-      }, 8000);
+  <footer>
+    <div class="wrap">© 2026 Rodrigo Aiosa · <a href="https://rodrigoaiosa.streamlit.app/" target="_blank" rel="noopener">Site com mais projetos</a></div>
+  </footer>
 
-      frame.addEventListener("load", function () {
-        clearTimeout(slowTimer);
-        loading.classList.add("hidden");
-        setTimeout(function () { loading.style.display = "none"; }, 350);
-      });
-    })();
-  </script>
-
-  <noscript>
-    <p style="padding:24px;text-align:center">
-      Ative o JavaScript ou
-      <a href="https://aiosaia.streamlit.app/" target="_blank" rel="noopener">abra o Alosa diretamente</a>.
-    </p>
-  </noscript>
 </body>
 </html>
