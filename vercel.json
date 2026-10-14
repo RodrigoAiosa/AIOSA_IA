@@ -2,8 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "echo sem dependencias",
-  "buildCommand": "mkdir -p dist && cp index.html dist/index.html",
+  "buildCommand": "mkdir -p dist && cp index.html eu_ia_foto.jpg dist/",
   "outputDirectory": "dist",
+  "functions": {
+    "api/chat.js": {
+      "maxDuration": 30,
+      "includeFiles": "instrucoes.txt"
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
