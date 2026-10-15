@@ -91,7 +91,7 @@ O Alosa também roda 100% no Vercel (projeto `aiosa_ia`, https://aiosaia.vercel.
 **Catálogo de projetos:** o final de `instrucoes.txt` ("CATÁLOGO DE PROJETOS") lista os projetos do site ([MeuSite](https://github.com/RodrigoAiosa/MeuSite), arrays `PBI_PROJECTS` e `PY_PROJECTS` do `index.html`). O Alosa escolhe até 3 deles conforme o setor/necessidade do usuário. Ao adicionar um projeto no site, adicione também um bloco no catálogo.
 
 **Proteções da versão Vercel:**
-- **Limite por IP** (`api/_limite.js`): 20 mensagens a cada 10 min (ajustável por `LIMITE_MENSAGENS` e `LIMITE_JANELA_MIN`). É em memória e por instância, ou seja, "melhor esforço". Para um limite global, ative também *Vercel → Firewall → Rate Limiting*.
+- **Limite por IP** (`api/_limite.js`): desligado por padrão. Para ligar, defina `LIMITE_MENSAGENS` (e `LIMITE_JANELA_MIN`, padrão 10) no Vercel. É em memória e por instância, ou seja, "melhor esforço". Para um limite global, ative também *Vercel → Firewall → Rate Limiting*.
 - **Checagem de origem**: só aceita chamadas vindas do próprio site (`ORIGENS_PERMITIDAS` adiciona outros domínios, separados por vírgula).
 - **Lista de links permitidos**: qualquer link que não esteja em `instrucoes.txt` é removido da resposta (em `seguranca.py` e `api/_seguranca.js`).
 - **Fora do tema**: o modelo responde só `[FORA_DE_ESCOPO]` e o código troca pela mensagem oficial de redirecionamento.

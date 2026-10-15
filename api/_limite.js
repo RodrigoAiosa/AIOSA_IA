@@ -7,7 +7,7 @@
 "use strict";
 
 const JANELA_MS = Number(process.env.LIMITE_JANELA_MIN || 10) * 60 * 1000;
-const MAX_POR_JANELA = Number(process.env.LIMITE_MENSAGENS || 20);
+const MAX_POR_JANELA = Number(process.env.LIMITE_MENSAGENS || 0) // 0 = sem limite (padrão);
 const MAX_ENTRADAS = 5000; // evita crescer sem fim na memória
 
 const contadores = new Map(); // ip -> [timestamps]
@@ -20,6 +20,7 @@ function ipDe(req) {
 
 // Retorna 0 se pode seguir, ou os segundos a esperar.
 function verificarLimite(req, agora = Date.now()) {
+  if (MAX_POR_JANELA <= 0) return 0; // limite desligado
   const ip = ipDe(req);
   const recentes = (contadores.get(ip) || []).filter((t) => agora - t < JANELA_MS);
   if (recentes.length >= MAX_POR_JANELA) {
