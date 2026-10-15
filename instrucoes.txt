@@ -215,161 +215,168 @@ Formato de cada bloco:
   Tecnologia: Power BI
   O que resolve: Selic, IPCA, dólar e desemprego atualizados diariamente via API do Banco Central, com juro real e inflação frente à meta.
   Link: https://app.powerbi.com/view?r=eyJrIjoiZjAxMTdhODAtMjE2OC00ZTQ5LTllOTQtMmRiZjVmYWViMzFiIiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9&pageName=c0a1b2c3d4e5f6a7b8c9
+[[CATALOGO]]
+- Nome: Panorama Macroeconômico Brasil
+  Área/setor: Setor Público & Geral
+  Tecnologia: Power BI
+  O que resolve: Selic, IPCA, dólar e desemprego atualizados diariamente via API do Banco Central, com juro real e inflação frente à meta.
+  Link: https://aiosaia.vercel.app/p/panorama-macroeconomico-brasil
 - Nome: Transporte — Travel Company
   Área/setor: Operações & Logística
   Tecnologia: Power BI
   O que resolve: Indicadores de performance operacional para identificar ineficiências e otimizar custos logísticos.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiNjY5NThlNjctZWY1Ny00YjA0LTk0MjEtNzhiNjgzZjdjZjA2IiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9
+  Link: https://aiosaia.vercel.app/p/transporte-travel-company
 - Nome: Dashboard ANATEL — Reclamações
   Área/setor: Operações & Logística
   Tecnologia: Power BI
   O que resolve: Monitoramento de reclamações para identificar gargalos de atendimento, tendências e causas de insatisfação.
-  Link: https://app.powerbi.com/reportEmbed?reportId=a416b3a1-5446-422b-9d1c-9ac5c3089fd7&autoAuth=true&ctid=3606e3a2-62f5-40ac-ad22-0d6c80989030
+  Link: https://aiosaia.vercel.app/p/dashboard-anatel-reclamacoes
 - Nome: Dashboard OEE — Eficiência Industrial
   Área/setor: Operações & Logística
   Tecnologia: Power BI
   O que resolve: Disponibilidade, desempenho e qualidade da produção, mitigando as perdas ocultas do chão de fábrica.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiM2YxN2NhZmQtMTg4My00YTgwLWJhOGQtZmRkNGZkNTM1ZDM0IiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9
+  Link: https://aiosaia.vercel.app/p/dashboard-oee-eficiencia-industrial
 - Nome: Portal da Transparência — Ilhéus
   Área/setor: Setor Público & Geral
   Tecnologia: Power BI
   O que resolve: Receitas, despesas empenhadas e investimentos do município em uma visão clara e auditável.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiYTM2ZWFlM2QtOTc2NC00NDQ2LTg2ZTctOGY5Nzc4YTk2YWM1IiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9
+  Link: https://aiosaia.vercel.app/p/portal-da-transparencia-ilheus
 - Nome: DRE Estratégico — Finanças
   Área/setor: Estratégico & Financeiro
   Tecnologia: Power BI
   O que resolve: Demonstrativo de Resultados com análises vertical e horizontal automáticas, margens de contribuição e lucratividade.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiOWE0ZmU3ZTMtYzAyYi00NDE1LTg3YWItYjcxZTE2ZWI2OWRjIiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9
+  Link: https://aiosaia.vercel.app/p/dre-estrategico-financas
 - Nome: Monitoramento de Vagas — Bradesco
   Área/setor: RH & People Analytics
   Tecnologia: Power BI
   O que resolve: Fluxo interno de contratações por praça regional, perfil técnico e status das posições.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiMjQxN2Q4NGYtNWRmNy00NWVjLWE4YmQtNWMyNWYwNGYyZDUzIiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9
+  Link: https://aiosaia.vercel.app/p/monitoramento-de-vagas-bradesco
 - Nome: Relatório STONE — Faturamento B2B
   Área/setor: Estratégico & Financeiro
   Tecnologia: Power BI
   O que resolve: Performance de adquirência de cartões: ticket médio, faturamento bruto e participação de mercado.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiMmViN2ZlMWMtY2Q4My00NmNmLTg0NzAtZjEzMzliNzcwMWMyIiwidCI6ImVlMmMzMDc0LTIyZDQtNGI3MC05MTdjLTJiYmFhZjUwZGQ4MyJ9
+  Link: https://aiosaia.vercel.app/p/relatorio-stone-faturamento-b2b
 - Nome: Vendas Meta vs Realizado
   Área/setor: Estratégico & Financeiro
   Tecnologia: Power BI
   O que resolve: Identifique rapidamente filiais e vendedores abaixo da meta esperada.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiYTg4OTdkZDUtNmIwZS00NGE1LTk2MDktMzc1YjM3ZjViN2Q5IiwidCI6ImVlMmMzMDc0LTIyZDQtNGI3MC05MTdjLTJiYmFhZjUwZGQ4MyJ9
+  Link: https://aiosaia.vercel.app/p/vendas-meta-vs-realizado
 - Nome: Controle de Pedidos BNZ
   Área/setor: Operações & Logística
   Tecnologia: Power BI
   O que resolve: Níveis de estoque e giro de produtos para evitar rupturas e excesso de capital imobilizado.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiZDZlNzViNzMtODllZS00OTVlLWI4MWQtNzBhZmU5ZTkxY2E0IiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9
+  Link: https://aiosaia.vercel.app/p/controle-de-pedidos-bnz
 - Nome: Análise de Dados Estratégica
   Área/setor: Estratégico & Financeiro
   Tecnologia: Power BI
   O que resolve: Visão unificada para C-Level com vetores de crescimento e gaps de eficiência.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiM2ZhYjQ5YzItNTliMS00M2QxLWFhMmItN2QzMjVhNThjY2QxIiwidCI6ImVlMmMzMDc0LTIyZDQtNGI3MC05MTdjLTJiYmFhZjUwZGQ4MyJ9
+  Link: https://aiosaia.vercel.app/p/analise-de-dados-estrategica
 - Nome: People Analytics (RH)
   Área/setor: RH & People Analytics
   Tecnologia: Power BI
   O que resolve: Funil de R&S, turnover e custos de comissões e bonificações integrados à performance.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiYmE2OGE3ODktZTUzMi00YTU2LTlkYmItYzUzY2UzNmJkMjAyIiwidCI6ImVlMmMzMDc0LTIyZDQtNGI3MC05MTdjLTJiYmFhZjUwZGQ4MyJ9
+  Link: https://aiosaia.vercel.app/p/people-analytics-rh
 - Nome: Relatório Borelli
   Área/setor: Operações & Logística
   Tecnologia: Power BI
   O que resolve: Ciclo de produção industrial com identificação de gargalos e ociosidade de máquinas.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiZTY5YmEzZmQtZDVhMS00N2QyLWJhY2QtMDNhMWFmMDRjMjNmIiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9
+  Link: https://aiosaia.vercel.app/p/relatorio-borelli
 - Nome: Financeiro — Beocean Resort
   Área/setor: Estratégico & Financeiro
   Tecnologia: Power BI
   O que resolve: Fluxo de caixa para hotelaria com gestão centralizada de receitas e custos operacionais.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiY2VkZmU1MDMtNTgwZS00NTJmLWFhOTktYzM0YzMwZDE3OTE4IiwidCI6IjdjNTYzNjMxLTcyZGMtNDY1Ny05MTRkLWIyM2M5ZTI5OGVlMSJ9
+  Link: https://aiosaia.vercel.app/p/financeiro-beocean-resort
 - Nome: API Atlas
   Área/setor: Tecnologia / APIs públicas
   Tecnologia: Python (app web)
   O que resolve: Encontre mais de 3.000 APIs públicas e gratuitas em 56 categorias, com busca global e informações de autenticação, HTTPS e CORS. Kits Power BI com consultas prontas em Power Query (M) e Python e gerador de scripts em requests + pandas.
-  Link: https://atlasapi-delta.vercel.app/
+  Link: https://aiosaia.vercel.app/p/api-atlas
 - Nome: Jogo de Xadrez
   Área/setor: Jogos / entretenimento
   Tecnologia: Python (app web)
   O que resolve: Xadrez completo no navegador, com regras oficiais da FIDE, modo contra o PC em 5 níveis, 100 puzzles de mate, notação em tempo real e exportação em PDF.
-  Link: https://jogoxadrez.vercel.app/
+  Link: https://aiosaia.vercel.app/p/jogo-de-xadrez
 - Nome: Conjectura de Collatz
   Área/setor: Matemática / educacional
   Tecnologia: Python (app web)
   O que resolve: Digite qualquer inteiro e acompanhe passo a passo sua trajetória até 1, com gráficos interativos (linear e log), métricas, tabela detalhada e exportação em CSV.
-  Link: https://conjectura-de-collatz-two.vercel.app/
+  Link: https://aiosaia.vercel.app/p/conjectura-de-collatz
 - Nome: Calculadora ROI de Consórcio
   Área/setor: Financeiro
   Tecnologia: Python (app web)
   O que resolve: Compare consórcio x financiamento, consórcio x investir a parcela e simule lances, com cenários prontos, gráficos de custo acumulado e exportação em Excel.
-  Link: https://calculadora-consorcio-roi.vercel.app/
+  Link: https://aiosaia.vercel.app/p/calculadora-roi-de-consorcio
 - Nome: Consórcio Educa
   Área/setor: Financeiro
   Tecnologia: Python (app web)
   O que resolve: Simulador com CET, composição de custos, lances, reajuste anual, comparador com financiamento e poupança, probabilidade de contemplação e proposta em PDF.
-  Link: https://consorcioeduca.vercel.app/
+  Link: https://aiosaia.vercel.app/p/consorcio-educa
 - Nome: Calculadora de Honorários Advocatícios
   Área/setor: Jurídico / advocacia
   Tecnologia: Python (app web)
   O que resolve: Honorários pela Tabela OAB, percentual, valor fixo, hora técnica, êxito e modelo misto, com sucumbência, correção, parcelamentos e proposta em PDF.
-  Link: https://calculadorahonorariosadvocaticios.vercel.app/
+  Link: https://aiosaia.vercel.app/p/calculadora-de-honorarios-advocaticios
 - Nome: Biblioteca de Comandos para ChatGPT
   Área/setor: Produtividade / IA
   Tecnologia: Python (app web)
   O que resolve: Prompts otimizados e categorizados para automação, análise de dados e rotinas diárias, com filtros e cópia rápida.
-  Link: https://comandoschatgpt.vercel.app/
+  Link: https://aiosaia.vercel.app/p/biblioteca-de-comandos-para-chatgpt
 - Nome: Big Mac Index Dashboard
   Área/setor: Economia / mercado financeiro
   Tecnologia: Python (app web)
   O que resolve: Preço do Big Mac em mais de 50 países, mapa mundial de paridade do poder de compra, rankings, histórico e calculadora PPP.
-  Link: https://economiabigmac.vercel.app/
+  Link: https://aiosaia.vercel.app/p/big-mac-index-dashboard
 - Nome: Painel de Arboviroses — Brasil
   Área/setor: Saúde pública
   Tecnologia: Python (app web)
   O que resolve: Risco de dengue, zika e chikungunya por município com dados do InfoDengue (Fiocruz) e IBGE, evolução histórica e mapa por estado.
-  Link: https://acompanhamentoarboviroses.vercel.app/
+  Link: https://aiosaia.vercel.app/p/painel-de-arboviroses-brasil
 - Nome: DAX 2048
   Área/setor: Educação / treinamento em Power BI
   Tecnologia: Python (app web)
   O que resolve: Jogo educativo inspirado no 2048 em que cada peça é uma função DAX. Combine peças e evolua para funções cada vez mais avançadas.
-  Link: https://jogo2048dax.vercel.app/
+  Link: https://aiosaia.vercel.app/p/dax-2048
 - Nome: Salário Médio por Estado
   Área/setor: RH / mercado de trabalho
   Tecnologia: Python (app web)
   O que resolve: Salário médio dos trabalhadores em todos os estados, com rankings, mapas e gráficos interativos.
-  Link: https://salariomediobrasil.vercel.app/
+  Link: https://aiosaia.vercel.app/p/salario-medio-por-estado
 - Nome: Olho Vivo Dashboard
   Área/setor: Transporte / logística (tempo real)
   Tecnologia: Python (app web)
   O que resolve: Transporte público de São Paulo em tempo real pela API Olho Vivo (SPTrans): linhas, paradas, frota ao vivo e previsão de chegada.
-  Link: https://sptrans-beta.vercel.app
+  Link: https://aiosaia.vercel.app/p/olho-vivo-dashboard
 - Nome: Processador Inteligente de CEPs
   Área/setor: Logística / endereços / entregas
   Tecnologia: Python (app web)
   O que resolve: Consultas individuais com mapa ou em lote via CSV/XLSX, com DDD, código IBGE e exploração de bairros por faixa de CEP.
-  Link: https://consultacep-orpin.vercel.app/
+  Link: https://aiosaia.vercel.app/p/processador-inteligente-de-ceps
 - Nome: População Brasil
   Área/setor: Dados públicos / demografia
   Tecnologia: Python (app web)
   O que resolve: Estimativas populacionais oficiais do IBGE por região, estado e município, com mapas interativos.
-  Link: https://populacaobrasil.vercel.app
+  Link: https://aiosaia.vercel.app/p/populacao-brasil
 - Nome: Renda por Município — SP
   Área/setor: Dados públicos / economia regional
   Tecnologia: Python (app web)
   O que resolve: Distribuição de renda nos municípios paulistas: PIB per capita, renda familiar e desigualdades regionais.
-  Link: https://rendacidadeibge.vercel.app/
+  Link: https://aiosaia.vercel.app/p/renda-por-municipio-sp
 - Nome: Simulador ENEM gratuito
   Área/setor: Educação
   Tecnologia: Python (app web)
   O que resolve: Questões reais, correção automática, estatísticas de desempenho e plano de estudos personalizado.
-  Link: https://simuladorenem-rose.vercel.app
+  Link: https://aiosaia.vercel.app/p/simulador-enem-gratuito
 - Nome: Calculadora ROI de Automação
   Área/setor: Operações / automação / financeiro
   Tecnologia: Python (app web)
   O que resolve: Calcule o retorno de projetos de automação, compare cenários e projete resultados financeiros.
-  Link: https://roiautomacao.vercel.app/
+  Link: https://aiosaia.vercel.app/p/calculadora-roi-de-automacao
 - Nome: APP S.O.S. Mulher
   Área/setor: Social / dados públicos
   Tecnologia: Python (app web)
   O que resolve: Conscientização e dados sobre violência contra a mulher no Brasil, com estatísticas, tendências regionais e recursos de apoio.
-  Link: https://sosmulher.vercel.app/
+  Link: https://aiosaia.vercel.app/p/app-s-o-s-mulher
+[[/CATALOGO]]
 
 ---
 

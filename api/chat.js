@@ -6,6 +6,7 @@
 const fs = require("fs");
 const path = require("path");
 const { blindarResposta } = require("./_seguranca");
+const CATALOGO = require("./_catalogo.json");
 
 const MODEL = "gemini-2.5-flash";
 const MAX_HISTORICO = 12;
@@ -99,6 +100,28 @@ function validarEntrada(body) {
   return msgs;
 }
 
+// Garantia por código: todo projeto do catálogo citado na resposta precisa vir com o seu link.
+// Se o modelo citou o nome mas esqueceu o link, acrescenta o link no fim do mesmo parágrafo.
+function semAcento(t) {
+  return t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+function garantirLinksProjetos(resposta) {
+  const paragrafos = resposta.split("\n\n");
+  let mudou = false;
+  const novos = paragrafos.map((par) => {
+    const norm = semAcento(par);
+    let resultado = par;
+    for (const proj of CATALOGO) {
+      if (norm.includes(semAcento(proj.nome)) && !par.includes(proj.link)) {
+        resultado += `\n[Ver projeto](${proj.link})`;
+        mudou = true;
+      }
+    }
+    return resultado;
+  });
+  return mudou ? novos.join("\n\n") : resposta;
+}
+
 function dormir(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -120,7 +143,12 @@ async function perguntarGemini(mensagens, systemPrompt) {
   ];
   const payload = {
     contents,
-    generationConfig: { temperature: 0.2, maxOutputTokens: MAX_OUTPUT_TOKENS },
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
+      // Sem "thinking": os tokens de raciocínio contam no limite de saída e cortavam a resposta antes dos links.
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   };
 
   for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
@@ -192,6 +220,7 @@ module.exports = async function handler(req, res) {
     .replace(/\[[^\]\[]*\]\([^)]*$/, "")
     .replace(/\[[^\]\[]*$/, "")
     .replace(/\s+$/u, "");
+  if (!ehErroNosso) resposta = garantirLinksProjetos(resposta);
   resposta = inserirHistoricoNoLinkWhatsapp(resposta, mensagens);
 
   return res.status(200).json({ resposta });

@@ -14,9 +14,177 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/p/panorama-macroeconomico-brasil",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiZjAxMTdhODAtMjE2OC00ZTQ5LTllOTQtMmRiZjVmYWViMzFiIiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9&pageName=c0a1b2c3d4e5f6a7b8c9",
+      "permanent": false
+    },
+    {
+      "source": "/p/transporte-travel-company",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiNjY5NThlNjctZWY1Ny00YjA0LTk0MjEtNzhiNjgzZjdjZjA2IiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/dashboard-anatel-reclamacoes",
+      "destination": "https://app.powerbi.com/reportEmbed?reportId=a416b3a1-5446-422b-9d1c-9ac5c3089fd7&autoAuth=true&ctid=3606e3a2-62f5-40ac-ad22-0d6c80989030",
+      "permanent": false
+    },
+    {
+      "source": "/p/dashboard-oee-eficiencia-industrial",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiM2YxN2NhZmQtMTg4My00YTgwLWJhOGQtZmRkNGZkNTM1ZDM0IiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/portal-da-transparencia-ilheus",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiYTM2ZWFlM2QtOTc2NC00NDQ2LTg2ZTctOGY5Nzc4YTk2YWM1IiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/dre-estrategico-financas",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiOWE0ZmU3ZTMtYzAyYi00NDE1LTg3YWItYjcxZTE2ZWI2OWRjIiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/monitoramento-de-vagas-bradesco",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiMjQxN2Q4NGYtNWRmNy00NWVjLWE4YmQtNWMyNWYwNGYyZDUzIiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/relatorio-stone-faturamento-b2b",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiMmViN2ZlMWMtY2Q4My00NmNmLTg0NzAtZjEzMzliNzcwMWMyIiwidCI6ImVlMmMzMDc0LTIyZDQtNGI3MC05MTdjLTJiYmFhZjUwZGQ4MyJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/vendas-meta-vs-realizado",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiYTg4OTdkZDUtNmIwZS00NGE1LTk2MDktMzc1YjM3ZjViN2Q5IiwidCI6ImVlMmMzMDc0LTIyZDQtNGI3MC05MTdjLTJiYmFhZjUwZGQ4MyJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/controle-de-pedidos-bnz",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiZDZlNzViNzMtODllZS00OTVlLWI4MWQtNzBhZmU5ZTkxY2E0IiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/analise-de-dados-estrategica",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiM2ZhYjQ5YzItNTliMS00M2QxLWFhMmItN2QzMjVhNThjY2QxIiwidCI6ImVlMmMzMDc0LTIyZDQtNGI3MC05MTdjLTJiYmFhZjUwZGQ4MyJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/people-analytics-rh",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiYmE2OGE3ODktZTUzMi00YTU2LTlkYmItYzUzY2UzNmJkMjAyIiwidCI6ImVlMmMzMDc0LTIyZDQtNGI3MC05MTdjLTJiYmFhZjUwZGQ4MyJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/relatorio-borelli",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiZTY5YmEzZmQtZDVhMS00N2QyLWJhY2QtMDNhMWFmMDRjMjNmIiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/financeiro-beocean-resort",
+      "destination": "https://app.powerbi.com/view?r=eyJrIjoiY2VkZmU1MDMtNTgwZS00NTJmLWFhOTktYzM0YzMwZDE3OTE4IiwidCI6IjdjNTYzNjMxLTcyZGMtNDY1Ny05MTRkLWIyM2M5ZTI5OGVlMSJ9",
+      "permanent": false
+    },
+    {
+      "source": "/p/api-atlas",
+      "destination": "https://atlasapi-delta.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/jogo-de-xadrez",
+      "destination": "https://jogoxadrez.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/conjectura-de-collatz",
+      "destination": "https://conjectura-de-collatz-two.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/calculadora-roi-de-consorcio",
+      "destination": "https://calculadora-consorcio-roi.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/consorcio-educa",
+      "destination": "https://consorcioeduca.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/calculadora-de-honorarios-advocaticios",
+      "destination": "https://calculadorahonorariosadvocaticios.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/biblioteca-de-comandos-para-chatgpt",
+      "destination": "https://comandoschatgpt.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/big-mac-index-dashboard",
+      "destination": "https://economiabigmac.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/painel-de-arboviroses-brasil",
+      "destination": "https://acompanhamentoarboviroses.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/dax-2048",
+      "destination": "https://jogo2048dax.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/salario-medio-por-estado",
+      "destination": "https://salariomediobrasil.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/olho-vivo-dashboard",
+      "destination": "https://sptrans-beta.vercel.app",
+      "permanent": false
+    },
+    {
+      "source": "/p/processador-inteligente-de-ceps",
+      "destination": "https://consultacep-orpin.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/populacao-brasil",
+      "destination": "https://populacaobrasil.vercel.app",
+      "permanent": false
+    },
+    {
+      "source": "/p/renda-por-municipio-sp",
+      "destination": "https://rendacidadeibge.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/simulador-enem-gratuito",
+      "destination": "https://simuladorenem-rose.vercel.app",
+      "permanent": false
+    },
+    {
+      "source": "/p/calculadora-roi-de-automacao",
+      "destination": "https://roiautomacao.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/app-s-o-s-mulher",
+      "destination": "https://sosmulher.vercel.app/",
+      "permanent": false
     }
   ]
 }
