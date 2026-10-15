@@ -7,7 +7,7 @@
 "use strict";
 
 const JANELA_MS = Number(process.env.LIMITE_JANELA_MIN || 10) * 60 * 1000;
-const MAX_POR_JANELA = Number(process.env.LIMITE_MENSAGENS || 0) // 0 = sem limite (padrão);
+const MAX_POR_JANELA = Number(process.env.LIMITE_MENSAGENS || 0); // 0 = sem limite (padrão)
 const MAX_ENTRADAS = 5000; // evita crescer sem fim na memória
 
 const contadores = new Map(); // ip -> [timestamps]
