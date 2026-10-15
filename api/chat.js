@@ -9,7 +9,7 @@ const { blindarResposta } = require("./_seguranca");
 
 const MODEL = "gemini-2.5-flash";
 const MAX_HISTORICO = 12;
-const MAX_OUTPUT_TOKENS = 550;
+const MAX_OUTPUT_TOKENS = 900; // links longos do catálogo (Power BI) exigem folga
 const MAX_TENTATIVAS = 2;
 const TIMEOUT_MS = 12000;
 const MAX_CHARS_MENSAGEM = 1500;
@@ -187,6 +187,11 @@ module.exports = async function handler(req, res) {
   // Mensagens de erro nossas não passam pela blindagem (não devem ganhar link de currículo etc.).
   const ehErroNosso = bruta === MENSAGEM_ERRO_GENERICA || bruta === MENSAGEM_LIMITE;
   let resposta = ehErroNosso ? bruta : blindarResposta(bruta, recentes);
+  // Se o limite de tokens cortou a resposta no meio de um link, remove o fragmento quebrado.
+  resposta = resposta
+    .replace(/\[[^\]\[]*\]\([^)]*$/, "")
+    .replace(/\[[^\]\[]*$/, "")
+    .replace(/\s+$/u, "");
   resposta = inserirHistoricoNoLinkWhatsapp(resposta, mensagens);
 
   return res.status(200).json({ resposta });

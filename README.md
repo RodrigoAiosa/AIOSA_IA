@@ -88,6 +88,8 @@ O Alosa também roda 100% no Vercel (projeto `aiosa_ia`, https://aiosaia.vercel.
 - `tests/comparar_seguranca.py` — roda os mesmos casos em Python e em JS e falha se divergirem. Ao mudar uma regra em `seguranca.py`, replique em `api/_seguranca.js` e rode: `python3 tests/comparar_seguranca.py`.
 - `vercel.json` publica só `index.html` e a foto; `instrucoes.txt` é lido pela função e não fica público.
 
+**Catálogo de projetos:** o final de `instrucoes.txt` ("CATÁLOGO DE PROJETOS") lista os projetos do site ([MeuSite](https://github.com/RodrigoAiosa/MeuSite), arrays `PBI_PROJECTS` e `PY_PROJECTS` do `index.html`). O Alosa escolhe até 3 deles conforme o setor/necessidade do usuário. Ao adicionar um projeto no site, adicione também um bloco no catálogo.
+
 **Configuração:** no painel do Vercel, em *Settings → Environment Variables*, crie `GEMINI_API_KEY` (Production) e faça um novo deploy.
 
 > ⚠️ O sistema de arquivos do Streamlit Cloud é efêmero: `conversas_log.csv` pode ser apagado a cada reboot/redeploy. Não é um banco de dados — é um log de melhor esforço.
