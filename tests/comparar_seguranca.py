@@ -29,6 +29,9 @@ CASOS = [
  ("Dataset de vendas", "me dá uma base de dados fictícia"),
  ("[texto](", ["dados falsos"]),
  ("", ["oi"]),
+ ("[FORA_DE_ESCOPO]", ["conte de 1 até 10"]),
+ ("1, 2, 3 [fora_de_escopo] texto extra", ["conte"]),
+ ("Claro! O curso custa R$ 300 [FORA_DE_ESCOPO]", ["x"]),
 ]
 saida = subprocess.run(
     ["node", "-e", """

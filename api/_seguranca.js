@@ -25,6 +25,13 @@ const PADRAO_PRECO = new RegExp(
   "i"
 );
 
+const MARCADOR_FORA_ESCOPO = "[FORA_DE_ESCOPO]";
+
+const RESPOSTA_PADRAO_FORA_ESCOPO =
+  "Isso foge um pouco do que eu ajudo por aqui — meu foco é dados, Power BI, " +
+  "Python, SQL, Excel e os treinamentos do Rodrigo. Posso te ajudar com algo " +
+  "nessa área?";
+
 const RESPOSTA_PADRAO_PRECO =
   "O investimento é personalizado de acordo com o seu objetivo e o formato " +
   "do treinamento/projeto. O próximo passo é falar diretamente com o Rodrigo " +
@@ -207,6 +214,7 @@ function garantirLinkCurriculo(historicoUsuario, resposta) {
 }
 
 function blindarResposta(resposta, historicoUsuario) {
+  if (resposta.toLowerCase().includes(MARCADOR_FORA_ESCOPO.toLowerCase())) return RESPOSTA_PADRAO_FORA_ESCOPO;
   if (contemPreco(resposta)) return RESPOSTA_PADRAO_PRECO;
   if (termosExternosEncontrados(resposta).length) return RESPOSTA_PADRAO_FONTE_EXTERNA;
   resposta = garantirLinkGeradorDados(historicoUsuario, resposta);

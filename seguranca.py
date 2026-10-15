@@ -24,6 +24,14 @@ LINKS_PERMITIDOS = [
     "github.com/rodrigoaiosa/aiosa_ia",
 ]
 
+MARCADOR_FORA_ESCOPO = "[FORA_DE_ESCOPO]"
+
+RESPOSTA_PADRAO_FORA_ESCOPO = (
+    "Isso foge um pouco do que eu ajudo por aqui — meu foco é dados, Power BI, "
+    "Python, SQL, Excel e os treinamentos do Rodrigo. Posso te ajudar com algo "
+    "nessa área?"
+)
+
 # Termos de fontes externas comuns que nunca podem aparecer numa resposta
 TERMOS_PROIBIDOS = [
     "kaggle", "youtube", "youtu.be", "udemy", "coursera", "alura",
@@ -341,6 +349,12 @@ def blindar_resposta(resposta: str, historico_usuario=None) -> str:
     produção para as checagens de gerador de dados e currículo
     funcionarem em conversas de vários turnos.
     """
+    # Pedido fora do tema: o modelo responde só com o marcador (REGRA -0.5 do
+    # instrucoes.txt) e o código troca pela mensagem oficial. Se o marcador vier
+    # junto de texto, descarta o texto inteiro: nada fora do tema é exibido.
+    if MARCADOR_FORA_ESCOPO.lower() in resposta.lower():
+        return RESPOSTA_PADRAO_FORA_ESCOPO
+
     if contem_preco(resposta):
         return RESPOSTA_PADRAO_PRECO
 
@@ -368,6 +382,8 @@ def avaliar(resposta: str, checks: list) -> dict:
         resultado["sem_termo_proibido"] = (len(encontrados) == 0)
         if encontrados:
             resultado["termos_encontrados"] = encontrados
+    if "recusou_fora_escopo" in checks:
+        resultado["recusou_fora_escopo"] = "foge um pouco do que eu ajudo" in resposta.lower()
     if "tem_link_ou_whatsapp" in checks:
         resultado["tem_link_ou_whatsapp"] = contem_link_oficial(resposta)
     return resultado
