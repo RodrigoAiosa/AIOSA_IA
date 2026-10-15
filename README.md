@@ -90,6 +90,23 @@ O Alosa também roda 100% no Vercel (projeto `aiosa_ia`, https://aiosaia.vercel.
 
 **Catálogo de projetos:** o final de `instrucoes.txt` ("CATÁLOGO DE PROJETOS") lista os projetos do site ([MeuSite](https://github.com/RodrigoAiosa/MeuSite), arrays `PBI_PROJECTS` e `PY_PROJECTS` do `index.html`). O Alosa escolhe até 3 deles conforme o setor/necessidade do usuário. Ao adicionar um projeto no site, adicione também um bloco no catálogo.
 
+**Proteções da versão Vercel:**
+- **Limite por IP** (`api/_limite.js`): 20 mensagens a cada 10 min (ajustável por `LIMITE_MENSAGENS` e `LIMITE_JANELA_MIN`). É em memória e por instância, ou seja, "melhor esforço". Para um limite global, ative também *Vercel → Firewall → Rate Limiting*.
+- **Checagem de origem**: só aceita chamadas vindas do próprio site (`ORIGENS_PERMITIDAS` adiciona outros domínios, separados por vírgula).
+- **Lista de links permitidos**: qualquer link que não esteja em `instrucoes.txt` é removido da resposta (em `seguranca.py` e `api/_seguranca.js`).
+- **Fora do tema**: o modelo responde só `[FORA_DE_ESCOPO]` e o código troca pela mensagem oficial de redirecionamento.
+- **Privacidade**: o servidor não guarda nem registra o conteúdo das conversas. A conversa só persiste na própria aba do navegador do usuário (`sessionStorage`), some ao fechar a aba e pode ser apagada em "Nova conversa". O texto das mensagens é processado pela API do Gemini.
+- **Interface**: sugestões de perguntas, botão de copiar, "Nova conversa" e efeito de digitação (a resposta só aparece depois de passar pela camada de segurança, por isso não há streaming).
+
+**Testes sem chave (rodam no CI a cada push, `.github/workflows/testes-offline.yml`):**
+```bash
+python3 tests/test_seguranca.py      # regras de segurança
+python3 tests/comparar_seguranca.py  # paridade Python x JS
+node tests/unitarios.js              # servidor com Gemini simulado
+```
+
+**Atualização do catálogo:** `.github/workflows/atualizar-catalogo.yml` (semanal ou manual) lê o MeuSite, roda `tools/gerar_catalogo.py` e comita se algo mudou. O projeto `aiosa_ia` só publica sozinho se estiver ligado ao Git em *Settings → Git*; caso contrário, é preciso um novo deploy manual.
+
 **Configuração:** no painel do Vercel, em *Settings → Environment Variables*, crie `GEMINI_API_KEY` (Production) e faça um novo deploy.
 
 > ⚠️ O sistema de arquivos do Streamlit Cloud é efêmero: `conversas_log.csv` pode ser apagado a cada reboot/redeploy. Não é um banco de dados — é um log de melhor esforço.

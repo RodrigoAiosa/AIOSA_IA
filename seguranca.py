@@ -9,7 +9,9 @@ Centraliza as regras que NÃO podem depender só do LLM obedecer o prompt:
 para garantir que os dois usem exatamente os mesmos critérios.
 """
 
+import os
 import re
+from urllib.parse import urlparse
 
 # ---------------------------------------------------------------
 # Links oficiais permitidos (única fonte de verdade — REGRA 0)
@@ -98,6 +100,63 @@ BLOCO_LINK_CURRICULO = (
     "📄 **Currículo — Rodrigo Aiosa** (clique para baixar direto)\n"
     f"[_Rodrigo_Aiosa_CV 2026.docx]({LINK_CURRICULO})"
 )
+
+
+# ---------------------------------------------------------------
+# Lista branca de links (camada extra além da lista de termos proibidos)
+# Todo link da resposta precisa apontar para um endereço que JÁ aparece no
+# instrucoes.txt (links oficiais + catálogo de projetos). Qualquer outro
+# endereço — mesmo que não esteja em TERMOS_PROIBIDOS — é barrado.
+# ---------------------------------------------------------------
+_REGEX_URL = re.compile(r"https?://[^\s)\]>\"'<]+", re.IGNORECASE)
+_HOSTS_COMPARTILHADOS = {"github.com", "wa.me"}  # só vale o 1º trecho do caminho (ex.: /RodrigoAiosa/)
+_EXTRAS_PERMITIDOS = ["https://aiosaia.vercel.app/"]
+
+
+def _normalizar_url(url: str):
+    u = urlparse(url)
+    host = (u.hostname or "").lower()
+    if host.startswith("www."):
+        host = host[4:]
+    primeiro = (u.path.strip("/").split("/")[0] or "").lower()
+    return host, primeiro
+
+
+def _carregar_lista_branca():
+    hosts, pares = set(), set()
+    candidatos = list(_EXTRAS_PERMITIDOS) + ["https://" + l for l in LINKS_PERMITIDOS if "@" not in l]
+    caminho = os.path.join(os.path.dirname(os.path.abspath(__file__)), "instrucoes.txt")
+    try:
+        with open(caminho, "r", encoding="utf-8") as f:
+            candidatos += _REGEX_URL.findall(f.read())
+    except OSError:
+        pass
+    for url in candidatos:
+        host, primeiro = _normalizar_url(url)
+        if not host:
+            continue
+        if host in _HOSTS_COMPARTILHADOS:
+            pares.add((host, primeiro))
+        else:
+            hosts.add(host)
+    return hosts, pares
+
+
+HOSTS_PERMITIDOS, PARES_PERMITIDOS = _carregar_lista_branca()
+
+
+def links_fora_da_lista(texto: str) -> list:
+    """Links da resposta que NÃO estão na lista branca (vazia = tudo certo)."""
+    proibidos = []
+    for url in _REGEX_URL.findall(texto):
+        url = url.rstrip(".,;:!?")
+        host, primeiro = _normalizar_url(url)
+        if host in HOSTS_PERMITIDOS:
+            continue
+        if host in _HOSTS_COMPARTILHADOS and (host, primeiro) in PARES_PERMITIDOS:
+            continue
+        proibidos.append(url)
+    return proibidos
 
 
 def contem_preco(texto: str) -> bool:
@@ -358,7 +417,7 @@ def blindar_resposta(resposta: str, historico_usuario=None) -> str:
     if contem_preco(resposta):
         return RESPOSTA_PADRAO_PRECO
 
-    if termos_externos_encontrados(resposta):
+    if termos_externos_encontrados(resposta) or links_fora_da_lista(resposta):
         return RESPOSTA_PADRAO_FONTE_EXTERNA
 
     # Nota: NÃO usamos "if historico_usuario:" aqui de propósito — uma
@@ -384,6 +443,8 @@ def avaliar(resposta: str, checks: list) -> dict:
             resultado["termos_encontrados"] = encontrados
     if "recusou_fora_escopo" in checks:
         resultado["recusou_fora_escopo"] = "foge um pouco do que eu ajudo" in resposta.lower()
+    if "sem_link_fora_da_lista" in checks:
+        resultado["sem_link_fora_da_lista"] = not links_fora_da_lista(resposta)
     if "tem_link_ou_whatsapp" in checks:
         resultado["tem_link_ou_whatsapp"] = contem_link_oficial(resposta)
     return resultado

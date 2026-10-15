@@ -32,6 +32,14 @@ CASOS = [
  ("[FORA_DE_ESCOPO]", ["conte de 1 até 10"]),
  ("1, 2, 3 [fora_de_escopo] texto extra", ["conte"]),
  ("Claro! O curso custa R$ 300 [FORA_DE_ESCOPO]", ["x"]),
+ ("Veja a documentação em https://learn.microsoft.com/power-bi/", ["oi"]),
+ ("Veja [o projeto](https://aiosaia.vercel.app/p/dre-estrategico-financas).", ["oi"]),
+ ("Veja https://github.com/RodrigoAiosa/MeuSite e https://github.com/torvalds/linux", ["oi"]),
+ ("Fale em https://wa.me/5511977019335?text=Oi", ["oi"]),
+ ("Fale em https://wa.me/5599999999999", ["oi"]),
+ ("Acesse https://www.rodrigoaiosa.streamlit.app/treinamento_empresa", ["oi"]),
+ ("Acesse https://rodrigoaiosa.vercel.app/#powerbi, ok?", ["oi"]),
+ ("Site https://exemplo-malicioso.com/x?a=1", ["oi"]),
 ]
 saida = subprocess.run(
     ["node", "-e", """

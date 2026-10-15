@@ -3,6 +3,9 @@
 // tests/comparar_seguranca.js confere se ambos devolvem o mesmo resultado.
 "use strict";
 
+const fs = require("fs");
+const path = require("path");
+
 const LINKS_PERMITIDOS = [
   "rodrigoaiosa.streamlit.app",
   "rodrigoaiosa.vercel.app",
@@ -74,6 +77,62 @@ const LINK_CURRICULO =
 const BLOCO_LINK_CURRICULO =
   "📄 **Currículo — Rodrigo Aiosa** (clique para baixar direto)\n" +
   `[_Rodrigo_Aiosa_CV 2026.docx](${LINK_CURRICULO})`;
+
+// ---------------------------------------------------------------
+// Lista branca de links: todo link da resposta precisa apontar para um endereço
+// que JÁ aparece no instrucoes.txt (links oficiais + catálogo). Espelha seguranca.py.
+// ---------------------------------------------------------------
+const REGEX_URL = /https?:\/\/[^\s)\]>"'<]+/gi;
+const HOSTS_COMPARTILHADOS = new Set(["github.com", "wa.me"]);
+const EXTRAS_PERMITIDOS = ["https://aiosaia.vercel.app/"];
+
+function normalizarUrl(url) {
+  let u;
+  try {
+    u = new URL(url);
+  } catch (_) {
+    return { host: "", primeiro: "" };
+  }
+  let host = u.hostname.toLowerCase();
+  if (host.startsWith("www.")) host = host.slice(4);
+  const primeiro = (u.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || "").toLowerCase();
+  return { host, primeiro };
+}
+
+function carregarListaBranca() {
+  const hosts = new Set();
+  const pares = new Set();
+  let candidatos = [...EXTRAS_PERMITIDOS, ...LINKS_PERMITIDOS.filter((l) => !l.includes("@")).map((l) => "https://" + l)];
+  for (const c of [path.join(process.cwd(), "instrucoes.txt"), path.join(__dirname, "..", "instrucoes.txt")]) {
+    try {
+      candidatos = candidatos.concat(fs.readFileSync(c, "utf-8").match(REGEX_URL) || []);
+      break;
+    } catch (_) {
+      /* tenta o próximo */
+    }
+  }
+  for (const url of candidatos) {
+    const { host, primeiro } = normalizarUrl(url);
+    if (!host) continue;
+    if (HOSTS_COMPARTILHADOS.has(host)) pares.add(host + "|" + primeiro);
+    else hosts.add(host);
+  }
+  return { hosts, pares };
+}
+
+const LISTA_BRANCA = carregarListaBranca();
+
+function linksForaDaLista(texto) {
+  const proibidos = [];
+  for (let url of texto.match(REGEX_URL) || []) {
+    url = url.replace(/[.,;:!?]+$/, "");
+    const { host, primeiro } = normalizarUrl(url);
+    if (LISTA_BRANCA.hosts.has(host)) continue;
+    if (HOSTS_COMPARTILHADOS.has(host) && LISTA_BRANCA.pares.has(host + "|" + primeiro)) continue;
+    proibidos.push(url);
+  }
+  return proibidos;
+}
 
 function contemPreco(texto) {
   return PADRAO_PRECO.test(texto.toLowerCase());
@@ -216,10 +275,10 @@ function garantirLinkCurriculo(historicoUsuario, resposta) {
 function blindarResposta(resposta, historicoUsuario) {
   if (resposta.toLowerCase().includes(MARCADOR_FORA_ESCOPO.toLowerCase())) return RESPOSTA_PADRAO_FORA_ESCOPO;
   if (contemPreco(resposta)) return RESPOSTA_PADRAO_PRECO;
-  if (termosExternosEncontrados(resposta).length) return RESPOSTA_PADRAO_FONTE_EXTERNA;
+  if (termosExternosEncontrados(resposta).length || linksForaDaLista(resposta).length) return RESPOSTA_PADRAO_FONTE_EXTERNA;
   resposta = garantirLinkGeradorDados(historicoUsuario, resposta);
   resposta = garantirLinkCurriculo(historicoUsuario, resposta);
   return resposta;
 }
 
-module.exports = { blindarResposta, contemPreco, termosExternosEncontrados };
+module.exports = { blindarResposta, contemPreco, termosExternosEncontrados, linksForaDaLista };

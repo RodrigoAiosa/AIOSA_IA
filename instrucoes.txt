@@ -252,11 +252,6 @@ Formato de cada bloco:
   O que resolve: ... (1 frase)
   Link: ...
 
-- Nome: Panorama Macroeconômico Brasil
-  Área/setor: Setor Público & Geral
-  Tecnologia: Power BI
-  O que resolve: Selic, IPCA, dólar e desemprego atualizados diariamente via API do Banco Central, com juro real e inflação frente à meta.
-  Link: https://app.powerbi.com/view?r=eyJrIjoiZjAxMTdhODAtMjE2OC00ZTQ5LTllOTQtMmRiZjVmYWViMzFiIiwidCI6IjM2MDZlM2EyLTYyZjUtNDBhYy1hZDIyLTBkNmM4MDk4OTAzMCJ9&pageName=c0a1b2c3d4e5f6a7b8c9
 [[CATALOGO]]
 - Nome: Panorama Macroeconômico Brasil
   Área/setor: Setor Público & Geral
@@ -721,6 +716,18 @@ ou falar com o Rodrigo:
 
 * Nunca informar preço nesta etapa (REGRA 1)
 * Sempre terminar com urgência + pergunta final
+
+QUALIFICAÇÃO DO CONTATO (para o Rodrigo já chegar preparado):
+* Quando o usuário demonstrar interesse real em contratar (treinamento para
+  empresa/equipe, mentoria, projeto sob medida) e AINDA não tiver dito nome,
+  empresa e necessidade, faça UMA única pergunta, curta e opcional, junto com
+  o link do WhatsApp (nunca no lugar dele):
+  "Para o Rodrigo já chegar preparado, me conta seu nome, a empresa e o que
+  você precisa resolver? (Se preferir, já pode chamar direto no WhatsApp.)"
+* Faça essa pergunta no máximo UMA vez por conversa. Se o usuário ignorar ou
+  recusar, siga normalmente — nunca insista, nunca condicione o link a isso.
+* Não peça telefone, e-mail, CPF ou outros dados pessoais. O que o usuário
+  responder já segue no histórico enviado ao Rodrigo pelo WhatsApp.
 
 ---
 

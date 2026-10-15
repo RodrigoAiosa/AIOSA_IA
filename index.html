@@ -78,19 +78,43 @@
     button:hover:not(:disabled) { filter: brightness(1.08); }
     button:disabled { opacity: .55; cursor: default; }
     button:focus-visible { outline: 2px solid var(--enviar); outline-offset: 2px; }
+    header { justify-content: space-between; }
+    .cab { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .nova { flex: none; width: auto; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(255,255,255,.14);
+      color: var(--header-texto); font-size: 13px; }
+    .nova:hover:not(:disabled) { background: rgba(255,255,255,.26); filter: none; }
+    .sugestoes { flex: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+      padding: 8px clamp(8px, 6vw, 80px) 0; background: var(--fundo); }
+    .sugestoes[hidden] { display: none; }
+    .sug { width: auto; height: auto; padding: 9px 14px; border-radius: 18px; background: var(--bolha-bot); color: var(--link);
+      font: inherit; font-size: 14px; box-shadow: 0 1px .5px rgba(11,20,26,.13); }
+    .sug:hover:not(:disabled) { filter: none; background: var(--bolha-user); color: var(--texto); }
+    .copiar { float: right; width: 22px; height: 18px; margin: 7px 0 -3px 8px; padding: 0; border-radius: 4px;
+      background: transparent; color: var(--hora); font-size: 12px; line-height: 1; opacity: .55; }
+    .copiar:hover:not(:disabled), .copiar:focus-visible { opacity: 1; filter: none; background: transparent; }
   </style>
 </head>
 <body>
   <div id="app">
     <header>
-      <img class="foto" src="eu_ia_foto.jpg" alt="Rodrigo Aiosa" width="40" height="40">
-      <div>
-        <p class="nome">Alosa — Assistente do Rodrigo Aiosa</p>
-        <p class="status">online</p>
+      <div class="cab">
+        <img class="foto" src="eu_ia_foto.jpg" alt="Rodrigo Aiosa" width="40" height="40">
+        <div>
+          <p class="nome">Alosa — Assistente do Rodrigo Aiosa</p>
+          <p class="status">online</p>
+        </div>
       </div>
+      <button class="nova" id="nova" type="button" aria-label="Começar uma nova conversa">Nova conversa</button>
     </header>
 
     <main id="chat" role="log" aria-live="polite" aria-label="Conversa com o Alosa"></main>
+
+    <div class="sugestoes" id="sugestoes" aria-label="Sugestões para começar">
+      <button class="sug" type="button" data-q="Quero um treinamento para a minha empresa">🏢 Treinamento para empresas</button>
+      <button class="sug" type="button" data-q="Quais projetos o Rodrigo já fez?">📊 Ver projetos</button>
+      <button class="sug" type="button" data-q="Quero baixar o currículo do Rodrigo">📄 Currículo</button>
+      <button class="sug" type="button" data-q="Quero falar com o Rodrigo">💬 Falar com o Rodrigo</button>
+    </div>
 
     <form id="form" autocomplete="off">
       <div class="campo">
@@ -106,11 +130,14 @@
   <script>
     (function () {
       var MAX_HISTORICO = 12;
+      var CHAVE = "alosa_conversa_v1"; // só neste navegador (sessionStorage); apagada ao fechar a aba. Nada vai para servidor.
       var chat = document.getElementById("chat");
       var form = document.getElementById("form");
       var entrada = document.getElementById("entrada");
       var enviar = document.getElementById("enviar");
-      var mensagens = [];
+      var sugestoes = document.getElementById("sugestoes");
+      var reduzirMovimento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var mensagens = []; // { role, content, hora }
       var ocupado = false;
 
       // Escapa HTML SEMPRE antes de aplicar o markdown (usuário e modelo) — evita XSS.
@@ -126,38 +153,74 @@
         t = t.replace(/\*(.+?)\*/g, "<em>$1</em>");
         return t.replace(/\n/g, "<br>");
       }
+      function textoPuro(t) {
+        return t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1 ($2)").replace(/\*\*/g, "").replace(/\*/g, "");
+      }
 
       function hora() {
         var d = new Date();
         return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
       }
       function rolar() { chat.scrollTop = chat.scrollHeight; }
-      function bolha(tipo, html) {
+      function bolha(tipo, html, h) {
         var d = document.createElement("div");
         d.className = "bolha " + tipo;
-        d.innerHTML = '<span class="txt">' + html + '</span><span class="hora">' + hora() + '</span>';
+        d.innerHTML = '<span class="txt">' + html + '</span><span class="hora">' + (h || hora()) + '</span>';
         chat.appendChild(d);
         rolar();
         return d;
+      }
+      function addCopiar(el, texto) {
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "copiar"; b.title = "Copiar resposta"; b.setAttribute("aria-label", "Copiar resposta");
+        b.textContent = "⧉";
+        b.addEventListener("click", function () {
+          var ok = function () { b.textContent = "✓"; setTimeout(function () { b.textContent = "⧉"; }, 1200); };
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(textoPuro(texto)).then(ok, function () {});
+        });
+        el.insertBefore(b, el.querySelector(".hora"));
+      }
+
+      function salvar() {
+        try { sessionStorage.setItem(CHAVE, JSON.stringify(mensagens.slice(-40))); } catch (e) {}
+      }
+      function limpar() {
+        try { sessionStorage.removeItem(CHAVE); } catch (e) {}
+      }
+
+      // Efeito de "digitando": revela a resposta (já validada pelo servidor) aos poucos.
+      // Os links markdown são tratados como uma peça só, para nunca aparecer "[texto](" pela metade.
+      function revelar(el, texto, fim) {
+        var alvo = el.querySelector(".txt");
+        var pecas = texto.match(/\[[^\]]+\]\([^)]+\)|\s*\S+/g) || [texto];
+        if (reduzirMovimento || pecas.length < 4) { alvo.innerHTML = markdownParaHtml(texto); rolar(); fim(); return; }
+        var passo = Math.max(1, Math.ceil(pecas.length / 40)), i = 0;
+        (function proximo() {
+          i = Math.min(pecas.length, i + passo);
+          alvo.innerHTML = markdownParaHtml(pecas.slice(0, i).join(""));
+          rolar();
+          if (i < pecas.length) setTimeout(proximo, 25); else fim();
+        })();
       }
 
       function ajustarAltura() {
         entrada.style.height = "auto";
         entrada.style.height = Math.min(entrada.scrollHeight, 140) + "px";
       }
-
       function definirOcupado(v) {
         ocupado = v;
         enviar.disabled = v;
       }
 
-      async function enviarMensagem() {
-        var texto = entrada.value.trim();
+      async function enviarMensagem(texto) {
+        texto = (texto || entrada.value).trim();
         if (!texto || ocupado) return;
         entrada.value = "";
         ajustarAltura();
-        mensagens.push({ role: "user", content: texto });
-        bolha("user", markdownParaHtml(texto));
+        sugestoes.hidden = true;
+        var h = hora();
+        mensagens.push({ role: "user", content: texto, hora: h });
+        bolha("user", markdownParaHtml(texto), h);
         definirOcupado(true);
         var espera = bolha("bot", '<span class="digitando" aria-label="Alosa está digitando"><i></i><i></i><i></i></span>');
 
@@ -166,19 +229,47 @@
           var r = await fetch("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messages: mensagens.slice(-MAX_HISTORICO) })
+            body: JSON.stringify({ messages: mensagens.slice(-MAX_HISTORICO).map(function (m) { return { role: m.role, content: m.content }; }) })
           });
-          var dados = await r.json();
-          resposta = (r.ok && dados.resposta) ? dados.resposta :
-            "Tive um probleminha técnico agora. Pode tentar de novo em instantes? Se persistir, fala direto com o Rodrigo: [📲 WhatsApp](https://wa.me/5511977019335?text=Ol%C3%A1+Rodrigo!+Tive+um+problema+no+chat+do+site.)";
+          var dados = {};
+          try { dados = await r.json(); } catch (e) {}
+          if (r.ok && dados.resposta) resposta = dados.resposta;
+          else if (r.status === 429 && dados.erro) resposta = dados.erro + "\n\n[📲 WhatsApp](https://wa.me/5511977019335)";
+          else resposta = "Tive um probleminha técnico agora. Pode tentar de novo em instantes? Se persistir, fala direto com o Rodrigo: [📲 WhatsApp](https://wa.me/5511977019335?text=Ol%C3%A1+Rodrigo!+Tive+um+problema+no+chat+do+site.)";
         } catch (e) {
           resposta = "Sem conexão no momento. Verifique sua internet e tente de novo.";
         }
 
-        mensagens.push({ role: "assistant", content: resposta });
-        espera.querySelector(".txt").innerHTML = markdownParaHtml(resposta);
-        rolar();
-        definirOcupado(false);
+        var hr = hora();
+        mensagens.push({ role: "assistant", content: resposta, hora: hr });
+        salvar();
+        espera.querySelector(".hora").textContent = hr;
+        revelar(espera, resposta, function () {
+          addCopiar(espera, resposta);
+          definirOcupado(false);
+          entrada.focus();
+        });
+      }
+
+      function restaurar() {
+        var salvo = null;
+        try { salvo = JSON.parse(sessionStorage.getItem(CHAVE) || "null"); } catch (e) {}
+        if (!Array.isArray(salvo) || !salvo.length) return;
+        salvo.forEach(function (m) {
+          if (!m || (m.role !== "user" && m.role !== "assistant") || typeof m.content !== "string") return;
+          mensagens.push({ role: m.role, content: m.content, hora: m.hora || "" });
+          var el = bolha(m.role === "user" ? "user" : "bot", markdownParaHtml(m.content), m.hora || "");
+          if (m.role === "assistant") addCopiar(el, m.content);
+        });
+        if (mensagens.length) sugestoes.hidden = true;
+      }
+
+      function novaConversa() {
+        if (ocupado) return;
+        mensagens = [];
+        limpar();
+        chat.innerHTML = "";
+        sugestoes.hidden = false;
         entrada.focus();
       }
 
@@ -187,6 +278,13 @@
       entrada.addEventListener("keydown", function (e) {
         if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); enviarMensagem(); }
       });
+      sugestoes.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-q]");
+        if (b) enviarMensagem(b.dataset.q);
+      });
+      document.getElementById("nova").addEventListener("click", novaConversa);
+
+      restaurar();
     })();
   </script>
 </body>

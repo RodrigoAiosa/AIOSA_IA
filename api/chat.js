@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const { blindarResposta } = require("./_seguranca");
 const CATALOGO = require("./_catalogo.json");
+const { verificarLimite, origemPermitida } = require("./_limite");
 
 const MODEL = "gemini-2.5-flash";
 const MAX_HISTORICO = 12;
@@ -197,6 +198,16 @@ module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ erro: "Método não permitido." });
+  }
+
+  if (!origemPermitida(req)) return res.status(403).json({ erro: "Origem não permitida." });
+
+  const esperar = verificarLimite(req);
+  if (esperar > 0) {
+    res.setHeader("Retry-After", String(esperar));
+    return res.status(429).json({
+      erro: "Muitas mensagens em pouco tempo. Aguarde alguns minutos e tente de novo, ou fale direto com o Rodrigo no WhatsApp.",
+    });
   }
 
   let body = req.body;

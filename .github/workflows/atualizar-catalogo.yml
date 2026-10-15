@@ -1,0 +1,33 @@
+name: Atualizar catálogo de projetos
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  catalogo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: RodrigoAiosa/MeuSite
+          path: meusite
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 tools/gerar_catalogo.py meusite/index.html
+      - name: Commit se mudou
+        run: |
+          rm -rf meusite
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions"
+            git config user.email "actions@users.noreply.github.com"
+            git add -A
+            git commit -m "Atualiza catálogo de projetos a partir do MeuSite"
+            git push
+          fi
