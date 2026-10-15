@@ -157,6 +157,13 @@ CENARIOS = [
         "checks": ["tem_link_ou_whatsapp"],
         "espera_link": "_rodrigo_aiosa_cv",
     },
+    {
+        "id": 20,
+        "categoria": "Projetos sob medida (setor informado) — não pode inventar projeto/resultado",
+        "entrada": "A empresa em que trabalho é da área de logística, quais projetos você já fez? Me mostre.",
+        "checks": ["tem_link_ou_whatsapp"],
+        "espera_link": "rodrigoaiosa.vercel.app/#",
+    },
 ]
 
 
