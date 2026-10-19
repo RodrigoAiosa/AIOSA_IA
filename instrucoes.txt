@@ -323,6 +323,11 @@ Formato de cada bloco:
   Tecnologia: Power BI
   O que resolve: Fluxo de caixa para hotelaria com gestão centralizada de receitas e custos operacionais.
   Link: https://aiosaia.vercel.app/p/financeiro-beocean-resort
+- Nome: Aprender com Dinheiro
+  Área/setor: Dados / aplicações web
+  Tecnologia: Python (app web)
+  O que resolve: Ensina crianças a contar dinheiro brincando: descubra quantas moedas cabem em cada nota, monte valores no cofrinho e encare desafios. Inclui área do professor com atividades para imprimir em A4, com gabarito.
+  Link: https://aiosaia.vercel.app/p/aprender-com-dinheiro
 - Nome: API Atlas
   Área/setor: Tecnologia / APIs públicas
   Tecnologia: Python (app web)
