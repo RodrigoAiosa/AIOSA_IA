@@ -331,7 +331,7 @@ Formato de cada bloco:
 - Nome: API Atlas
   Área/setor: Tecnologia / APIs públicas
   Tecnologia: Python (app web)
-  O que resolve: Encontre mais de 3.000 APIs públicas e gratuitas em 56 categorias, com busca global e informações de autenticação, HTTPS e CORS. Kits Power BI com consultas prontas em Power Query (M) e Python e gerador de scripts em requests + pandas.
+  O que resolve: Encontre +5.000 APIs públicas e gratuitas em +50 categorias, com busca global e informações de autenticação, HTTPS e CORS. Kits Power BI com consultas prontas em Power Query (M) e Python e gerador de scripts em requests + pandas.
   Link: https://aiosaia.vercel.app/p/api-atlas
 - Nome: Jogo de Xadrez
   Área/setor: Jogos / entretenimento
