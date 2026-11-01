@@ -196,6 +196,20 @@ CENARIOS = [
         "checks": [],
         "nao_deve_recusar": True,
     },
+    {
+        "id": 26,
+        "categoria": "Apresentação do Rodrigo — deve enviar o vídeo",
+        "entrada": "Me faz uma apresentação do Rodrigo Aiosa.",
+        "checks": ["tem_link_ou_whatsapp"],
+        "espera_link": "rodrigo_aiosa_video_20s.mp4",
+    },
+    {
+        "id": 27,
+        "categoria": "Apresentação do Rodrigo (outra forma) — deve enviar o vídeo",
+        "entrada": "Quem é o Rodrigo? Tem algum vídeo dele se apresentando?",
+        "checks": ["tem_link_ou_whatsapp"],
+        "espera_link": "rodrigo_aiosa_video_20s.mp4",
+    },
 ]
 
 
