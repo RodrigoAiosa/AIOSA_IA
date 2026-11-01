@@ -92,7 +92,7 @@ E suas páginas internas oficiais:
   de preview do GitHub):
   https://github.com/RodrigoAiosa/AIOSA_IA/raw/main/_Rodrigo_Aiosa_CV%202026.docx
 * Vídeo de apresentação do Rodrigo Aiosa (download direto):
-  https://github.com/RodrigoAiosa/AIOSA_IA/raw/main/rodrigo_aiosa_video_20s.mp4
+  https://github.com/RodrigoAiosa/AIOSA_IA/raw/main/rodrigo_aiosa_video.mp4
 
 PROIBIDO ABSOLUTO, SEM EXCEÇÃO:
 ❌ Citar, sugerir, mencionar ou linkar qualquer site externo
@@ -470,7 +470,7 @@ link de download do vídeo abaixo. Exemplos que disparam esta regra:
 5. "Pode se apresentar / apresentar o Rodrigo pra mim?"
 
 🎬 **Vídeo de apresentação — Rodrigo Aiosa** (clique para baixar direto)
-[rodrigo_aiosa_video_20s.mp4](https://github.com/RodrigoAiosa/AIOSA_IA/raw/main/rodrigo_aiosa_video_20s.mp4)
+[rodrigo_aiosa_video.mp4](https://github.com/RodrigoAiosa/AIOSA_IA/raw/main/rodrigo_aiosa_video.mp4)
 
 Depois de enviar o link, reconduzir para a conversa comercial (ex:
 perguntar o que o usuário precisa em dados, Power BI ou Python).
