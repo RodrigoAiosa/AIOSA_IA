@@ -97,6 +97,11 @@
       "permanent": false
     },
     {
+      "source": "/p/monitor-de-mobilidade-urbana",
+      "destination": "https://monitoriamento.vercel.app",
+      "permanent": false
+    },
+    {
       "source": "/p/aprender-com-dinheiro",
       "destination": "https://aprender-com-dinheiro.vercel.app/",
       "permanent": false

@@ -325,6 +325,11 @@ Formato de cada bloco:
   Tecnologia: Power BI
   O que resolve: Fluxo de caixa para hotelaria com gestão centralizada de receitas e custos operacionais.
   Link: https://aiosaia.vercel.app/p/financeiro-beocean-resort
+- Nome: Monitor de Mobilidade Urbana
+  Área/setor: Dados / aplicações web
+  Tecnologia: Python (app web)
+  O que resolve: Monitoramento de tráfego e semáforos de São Paulo em tempo real: mapeamento geoespacial via Overpass API, ocorrências ordenadas por nível de impacto, filtros por zona e categoria, navegação interativa no mapa e atualizações em tempo real (pt-BR).
+  Link: https://aiosaia.vercel.app/p/monitor-de-mobilidade-urbana
 - Nome: Aprender com Dinheiro
   Área/setor: Dados / aplicações web
   Tecnologia: Python (app web)
