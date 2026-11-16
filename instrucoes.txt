@@ -325,6 +325,21 @@ Formato de cada bloco:
   Tecnologia: Power BI
   O que resolve: Fluxo de caixa para hotelaria com gestão centralizada de receitas e custos operacionais.
   Link: https://aiosaia.vercel.app/p/financeiro-beocean-resort
+- Nome: Mapa de Antenas Anatel
+  Área/setor: Dados / aplicações web
+  Tecnologia: Python (app web)
+  O que resolve: Encontre as antenas de celular (ERBs licenciadas na Anatel) perto de qualquer endereço, CEP, município ou coordenada: raio de busca, filtros por operadora, geração (2G a 5G) e estado, mancha de cobertura, lote de pontos via CSV, lugares salvos e link para compartilhar. Dados públicos; sua localização não sai do navegador.
+  Link: https://aiosaia.vercel.app/p/mapa-de-antenas-anatel
+- Nome: Jokenpo por Gestos
+  Área/setor: Dados / aplicações web
+  Tecnologia: Python (app web)
+  O que resolve: Pedra, Papel e Tesoura contra o computador jogado só com a mão, pela webcam: reconhecimento de gestos em tempo real, 3 níveis (Aprendiz, Jovem e Mestre) que leem padrões das suas jogadas sem trapacear, placar com melhor sequência e saída com um 👍. Tudo roda no navegador; o vídeo não sai do seu computador.
+  Link: https://aiosaia.vercel.app/p/jokenpo-por-gestos
+- Nome: Brasil Combustíveis — Série Histórica ANP
+  Área/setor: Dados / aplicações web
+  Tecnologia: Python (app web)
+  O que resolve: Preços de gasolina, etanol e diesel de 2004 a 2026 com dados da ANP: linha do tempo animada com marcos históricos, mapa por estado, ranking de municípios, valores corrigidos pelo IPCA, regra dos 70% do etanol e mapa de calor por estado e ano.
+  Link: https://aiosaia.vercel.app/p/brasil-combustiveis-serie-historica-anp
 - Nome: Monitor de Mobilidade Urbana
   Área/setor: Dados / aplicações web
   Tecnologia: Python (app web)

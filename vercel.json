@@ -97,6 +97,21 @@
       "permanent": false
     },
     {
+      "source": "/p/mapa-de-antenas-anatel",
+      "destination": "https://antenasbuscamapa.vercel.app/",
+      "permanent": false
+    },
+    {
+      "source": "/p/jokenpo-por-gestos",
+      "destination": "https://jokenpo-neon-five.vercel.app",
+      "permanent": false
+    },
+    {
+      "source": "/p/brasil-combustiveis-serie-historica-anp",
+      "destination": "https://indicadordashanp.vercel.app/",
+      "permanent": false
+    },
+    {
       "source": "/p/monitor-de-mobilidade-urbana",
       "destination": "https://monitoriamento.vercel.app",
       "permanent": false
