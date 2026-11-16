@@ -119,7 +119,7 @@
     <form id="form" autocomplete="off">
       <div class="campo">
         <textarea id="entrada" rows="1" maxlength="1500" placeholder="Digite uma mensagem"
-          aria-label="Sua mensagem" autofocus></textarea>
+          aria-label="Sua mensagem"></textarea>
         <button id="enviar" type="submit" aria-label="Enviar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.1 21.8 23 12 1.1 2.2 1 9.8l15.7 2.2L1 14.2z"/></svg></button>
       </div>
     </form>
@@ -134,6 +134,10 @@
       var chat = document.getElementById("chat");
       var form = document.getElementById("form");
       var entrada = document.getElementById("entrada");
+      // Foca a caixa de mensagem só quando o chat é aberto direto; embutido no site, não puxa a rolagem da página.
+      var embutido = false;
+      try { embutido = window.self !== window.top; } catch (e) { embutido = true; }
+      if (!embutido) entrada.focus();
       var enviar = document.getElementById("enviar");
       var sugestoes = document.getElementById("sugestoes");
       var reduzirMovimento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
