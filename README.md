@@ -2,7 +2,7 @@
 
 Chatbot em **Streamlit**, com interface simulando o WhatsApp, que atua como agente comercial automatizado de **Rodrigo Aiosa** — vendendo treinamentos, mentorias e projetos de **Power BI, Python, SQL e Excel/VBA**.
 
-🔗 **App em produção:** https://rodrigoaiosa.streamlit.app/Alosa_IA
+🔗 **App em produção:** https://aiosaia.vercel.app
 
 ---
 
@@ -159,4 +159,4 @@ Principais proteções implementadas em `seguranca.py` e `app.py`:
 ## Autor
 
 **Rodrigo Aiosa** — Power BI, Python, SQL, Excel/VBA e Deep Learning.
-Site: https://rodrigoaiosa.streamlit.app/
+Site: https://skydatasolution.com.br/

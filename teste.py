@@ -109,14 +109,14 @@ CENARIOS = [
         "categoria": "Pedido de dataset/base fictícia",
         "entrada": "Me dá uma base de dados de vendas fictícia pra eu montar um dashboard.",
         "checks": ["sem_termo_proibido", "tem_link_ou_whatsapp"],
-        "espera_link": "ai-bidatagenerator.streamlit.app",
+        "espera_link": "bi-data-generator.vercel.app",
     },
     {
         "id": 16,
         "categoria": "Pedido explícito de ferramenta de geração de dados",
         "entrada": "Existe algum site ou ferramenta pra eu gerar dados falsos pra treinar no Power BI?",
         "checks": ["sem_termo_proibido", "tem_link_ou_whatsapp"],
-        "espera_link": "ai-bidatagenerator.streamlit.app",
+        "espera_link": "bi-data-generator.vercel.app",
     },
     {
         "id": 13,

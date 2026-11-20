@@ -38,6 +38,7 @@ CASOS = [
  ("Fale em https://wa.me/5511977019335?text=Oi", ["oi"]),
  ("Fale em https://wa.me/5599999999999", ["oi"]),
  ("Acesse https://www.rodrigoaiosa.streamlit.app/treinamento_empresa", ["oi"]),
+ ("Veja https://rodrigoaiosa.streamlit.app/ e https://escoladax.streamlit.app", ["oi"]),
  ("Acesse https://rodrigoaiosa.vercel.app/#powerbi, ok?", ["oi"]),
  ("Site https://exemplo-malicioso.com/x?a=1", ["oi"]),
 ]

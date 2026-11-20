@@ -7,11 +7,10 @@ const fs = require("fs");
 const path = require("path");
 
 const LINKS_PERMITIDOS = [
-  "rodrigoaiosa.streamlit.app",
   "rodrigoaiosa.vercel.app",
   "skydatasolution.com.br",
   "rodrigoaiosa.github.io/promocao_curso_online",
-  "ai-bidatagenerator.streamlit.app",
+  "bi-data-generator.vercel.app",
   "wa.me/5511977019335",
   "rodrigoaiosa@gmail.com",
   "github.com/rodrigoaiosa/aiosa_ia",
@@ -55,7 +54,7 @@ const PADRAO_PEDIDO_GERADOR_DADOS = new RegExp(
   "i"
 );
 
-const LINK_GERADOR_DADOS = "https://ai-bidatagenerator.streamlit.app/";
+const LINK_GERADOR_DADOS = "https://bi-data-generator.vercel.app/";
 
 const BLOCO_LINK_GERADOR_DADOS =
   "📊 **Gerador de Dados para Power BI**\n" + `[Acessar o gerador](${LINK_GERADOR_DADOS})`;
@@ -191,7 +190,7 @@ function pedidoGeradorDados(historicoUsuario) {
 function respostaMencionaGeradorDados(resposta) {
   const t = resposta.toLowerCase();
   if (PADRAO_PEDIDO_GERADOR_DADOS.test(t)) return true;
-  return t.includes("gerador de dados") || t.includes("ai-bidatagenerator");
+  return t.includes("gerador de dados") || t.includes("bi-data-generator");
 }
 
 function removerFragmentoTruncado(resposta) {

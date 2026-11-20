@@ -109,7 +109,7 @@ teste("lista branca: GitHub do Rodrigo passa", not links_fora_da_lista("https://
 teste("lista branca: GitHub de terceiros é barrado", bool(links_fora_da_lista("https://github.com/torvalds/linux")))
 teste("lista branca: site desconhecido é barrado (mesmo fora da lista de termos)",
       blindar_resposta("Veja https://learn.microsoft.com/power-bi/", ["oi"]) == RESPOSTA_PADRAO_FONTE_EXTERNA)
-teste("lista branca: pontuação final não atrapalha", not links_fora_da_lista("Acesse https://rodrigoaiosa.streamlit.app/, ok?"))
+teste("lista branca: pontuação final não atrapalha", not links_fora_da_lista("Acesse https://skydatasolution.com.br/, ok?"))
 
 # =========================================================
 # RESUMO

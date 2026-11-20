@@ -17,11 +17,10 @@ from urllib.parse import urlparse
 # Links oficiais permitidos (única fonte de verdade — REGRA 0)
 # ---------------------------------------------------------------
 LINKS_PERMITIDOS = [
-    "rodrigoaiosa.streamlit.app",
     "rodrigoaiosa.vercel.app",
     "skydatasolution.com.br",
     "rodrigoaiosa.github.io/promocao_curso_online",
-    "ai-bidatagenerator.streamlit.app",
+    "bi-data-generator.vercel.app",
     "wa.me/5511977019335",
     "rodrigoaiosa@gmail.com",
     "github.com/rodrigoaiosa/aiosa_ia",
@@ -71,7 +70,7 @@ PADRAO_PEDIDO_GERADOR_DADOS = re.compile(
     re.IGNORECASE,
 )
 
-LINK_GERADOR_DADOS = "https://ai-bidatagenerator.streamlit.app/"
+LINK_GERADOR_DADOS = "https://bi-data-generator.vercel.app/"
 
 BLOCO_LINK_GERADOR_DADOS = (
     "📊 **Gerador de Dados para Power BI**\n"
@@ -245,7 +244,7 @@ def _resposta_menciona_gerador_dados(resposta: str) -> bool:
     texto_lower = resposta.lower()
     if PADRAO_PEDIDO_GERADOR_DADOS.search(texto_lower):
         return True
-    return "gerador de dados" in texto_lower or "ai-bidatagenerator" in texto_lower
+    return "gerador de dados" in texto_lower or "bi-data-generator" in texto_lower
 
 
 def _remover_link_gerador_dados_truncado(resposta: str) -> str:
