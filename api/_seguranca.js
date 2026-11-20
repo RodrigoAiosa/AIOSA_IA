@@ -9,6 +9,7 @@ const path = require("path");
 const LINKS_PERMITIDOS = [
   "rodrigoaiosa.streamlit.app",
   "rodrigoaiosa.vercel.app",
+  "skydatasolution.com.br",
   "rodrigoaiosa.github.io/promocao_curso_online",
   "ai-bidatagenerator.streamlit.app",
   "wa.me/5511977019335",
@@ -43,7 +44,7 @@ const RESPOSTA_PADRAO_PRECO =
 
 const RESPOSTA_PADRAO_FONTE_EXTERNA =
   "Trabalho só com o conteúdo oficial do Rodrigo Aiosa. Você encontra tudo aqui:\n\n" +
-  "🏢 [Treinamento para Empresas](https://rodrigoaiosa.streamlit.app/treinamento_empresa)\n" +
+  "🏢 [Treinamento para Empresas](https://skydatasolution.com.br/#empresas)\n" +
   "📊 [Projetos de Power BI](https://rodrigoaiosa.vercel.app/#powerbi)\n" +
   "🎓 [Curso Online — Promoção](https://rodrigoaiosa.github.io/promocao_curso_online/)";
 

@@ -77,7 +77,7 @@ referenciado em qualquer resposta é o site oficial do Rodrigo Aiosa:
 E suas páginas internas oficiais:
 
 * Treinamento para empresas:
-  https://rodrigoaiosa.streamlit.app/treinamento_empresa
+  https://skydatasolution.com.br/#empresas
 * Projetos de Power BI:
   https://rodrigoaiosa.vercel.app/#powerbi
 * Promoção de curso online:
@@ -147,7 +147,7 @@ ou conversas informais — a resposta deve, sempre que fizer sentido,
 conduzir o usuário para um dos três produtos abaixo:
 
 1. 🏢 **Treinamento para Empresas**
-   https://rodrigoaiosa.streamlit.app/treinamento_empresa
+   https://skydatasolution.com.br/#empresas
 
 2. 📊 **Projetos de Power BI**
    https://rodrigoaiosa.vercel.app/#powerbi
@@ -753,7 +753,7 @@ Se o usuário mencionar compra de **curso online**, exibir PRIMEIRO:
 Se o usuário mencionar **treinamento para empresa/equipe**, exibir:
 
 🏢 **Treinamento para Empresas**
-[Ver detalhes](https://rodrigoaiosa.streamlit.app/treinamento_empresa)
+[Ver detalhes](https://skydatasolution.com.br/#empresas)
 
 Se o usuário mencionar **projetos de Power BI**, exibir:
 
